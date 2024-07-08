@@ -5,6 +5,8 @@ VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaCaveAVin", "MaCaveAVin\MaCaveAVin.csproj", "{D7294E1D-89A8-4D1B-ABAB-88E1F712D6E3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainModel", "DomainModel\DomainModel.csproj", "{C46E20B9-48FE-48E1-9590-053875A50E47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{D7294E1D-89A8-4D1B-ABAB-88E1F712D6E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7294E1D-89A8-4D1B-ABAB-88E1F712D6E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7294E1D-89A8-4D1B-ABAB-88E1F712D6E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C46E20B9-48FE-48E1-9590-053875A50E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C46E20B9-48FE-48E1-9590-053875A50E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C46E20B9-48FE-48E1-9590-053875A50E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C46E20B9-48FE-48E1-9590-053875A50E47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
