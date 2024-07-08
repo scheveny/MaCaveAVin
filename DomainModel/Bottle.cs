@@ -18,5 +18,9 @@ namespace DomainModel
         public int DrawerNb { get; set; }
         public int StackInDrawerNb { get; set; }
         public string PeakYears { get; set; }
+
+        public Cellar Cellar { get; set; }
+
+        public int CellarId { get; set; }
     }
 }

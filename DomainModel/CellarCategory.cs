@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace DomainModel
 {
-    internal class CellarCategory
+    public class CellarCategory
     {
         public int CellarCategoryID { get; set; }
         public string CategoryName { get; set; }
+
+        public ICollection<Cellar> Cellars { get; set; }
     }
 }

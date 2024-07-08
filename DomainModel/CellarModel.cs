@@ -11,5 +11,6 @@ namespace DomainModel
         public int CellardModelID { get; set; }
         public string CellarBrand { get; set; }
         public int CellarTemperature { get; set; }
+        public ICollection<Cellar> Cellars { get; set; }
     }
 }
