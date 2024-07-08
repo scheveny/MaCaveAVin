@@ -1,4 +1,6 @@
-﻿namespace DomainModel
+﻿using System.Text.Json.Serialization;
+
+namespace DomainModel
 {
     public class User
     {
@@ -10,6 +12,10 @@
         public DateTime Birthday { get; set; }
         public string? Address { get; set; }
         public string? Telephone { get; set; }
+
+        public ICollection<Cellar>? Cellars { get; set; }
+
+        
 
     }
 }
