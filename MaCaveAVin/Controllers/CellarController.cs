@@ -28,7 +28,7 @@ namespace MaCaveAVin.Controllers
         [Produces(typeof(List<Cellar>))]
         public IActionResult GetClassrooms()
         {
-            return Ok(this.context.Cellars.ToList());
+            return Ok(context.Cellars.ToList());
         }
 
         // GET : /class/5
@@ -42,7 +42,7 @@ namespace MaCaveAVin.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var cellar = this.context.Cellars
+            var cellar = context.Cellars
                                         .Find(id);
 
             if (cellar == null)
@@ -57,8 +57,8 @@ namespace MaCaveAVin.Controllers
         [Produces(typeof(Cellar))]
         public IActionResult AddClassroom([FromBody] Cellar cellar)
         {
-            this.context.Cellars.Add(cellar);
-            this.context.SaveChanges();
+            context.Cellars.Add(cellar);
+            context.SaveChanges();
 
             return Created($"cellar/{cellar.CellarId}", cellar);
         }
@@ -75,8 +75,8 @@ namespace MaCaveAVin.Controllers
                 return BadRequest();
 
             // mise à jour
-            this.context.Cellars.Update(cellar);
-            this.context.SaveChanges();
+            context.Cellars.Update(cellar);
+            context.SaveChanges();
 
             return NoContent();
         }
@@ -92,13 +92,13 @@ namespace MaCaveAVin.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var cellar = this.context.Cellars.Find(id);
+            var cellar = context.Cellars.Find(id);
 
             if (cellar == null)
                 return NotFound();
 
-            this.context.Cellars.Remove(cellar);
-            this.context.SaveChanges();
+            context.Cellars.Remove(cellar);
+            context.SaveChanges();
 
             return Ok(cellar);
         }

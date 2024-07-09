@@ -33,7 +33,5 @@ namespace DomainModel
 
         public ICollection<Cellar>? Cellars { get; set; }
 
-        
-
     }
 }
