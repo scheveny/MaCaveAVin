@@ -1,4 +1,7 @@
 
+using Dal;
+using Microsoft.EntityFrameworkCore;
+
 namespace MaCaveAVin
 {
     public class Program
@@ -9,7 +12,11 @@ namespace MaCaveAVin
 
             // Add services to the container.
 
+            // Ajouter les services de contrôleur
             builder.Services.AddControllers();
+            builder.Services.AddDbContext<CellarContext>(options =>
+                                    options.UseSqlServer(builder.Configuration.GetConnectionString("CellarDatabase")));
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
