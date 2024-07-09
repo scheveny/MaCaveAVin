@@ -19,10 +19,11 @@ namespace Dal
         #endregion
 
         #region Constructors
-        //public CellarContext()
-        //    : base()
-        //{
-        //}
+
+        public CellarContext()
+            : base()
+        {
+        }
 
         public CellarContext(DbContextOptions options)
             : base(options)
@@ -36,7 +37,7 @@ namespace Dal
             if (!optionsBuilder.IsConfigured)
                 optionsBuilder.UseSqlServer(@"Data Source=(localdb)\mssqllocaldb;Initial Catalog=CellarDatabase;Integrated Security=true;");
 
-            base.OnConfiguring(optionsBuilder);
+            //base.OnConfiguring(optionsBuilder);
         }
         #endregion
     }
