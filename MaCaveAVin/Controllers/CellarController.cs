@@ -18,15 +18,11 @@ namespace MaCaveAVin.Controllers
             this.context = context;
         }
 
-        // GET : /class
-        /// <summary>
-        /// Retourne les classrooms
-        /// </summary>
-        /// <returns>une liste de classroom</returns>
+
         [HttpGet]
         [ProducesResponseType(200)]
         [Produces(typeof(List<Cellar>))]
-        public IActionResult GetClassrooms()
+        public IActionResult GetCellars()
         {
             return Ok(context.Cellars.ToList());
         }
@@ -42,8 +38,7 @@ namespace MaCaveAVin.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var cellar = context.Cellars
-                                        .Find(id);
+            var cellar = context.Cellars.Find(id);
 
             if (cellar == null)
                 return NotFound();
@@ -55,7 +50,7 @@ namespace MaCaveAVin.Controllers
         [HttpPost]
         [ProducesResponseType(201)]
         [Produces(typeof(Cellar))]
-        public IActionResult AddClassroom([FromBody] Cellar cellar)
+        public IActionResult AddCellar([FromBody] Cellar cellar)
         {
             context.Cellars.Add(cellar);
             context.SaveChanges();
@@ -67,7 +62,7 @@ namespace MaCaveAVin.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
-        public IActionResult UpdateClassroom(
+        public IActionResult UpdateCellar(
             [FromRoute] int id,
             [FromBody] Cellar cellar)
         {
@@ -87,7 +82,7 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(200)]
         [Produces(typeof(Cellar))]
-        public IActionResult RemoveClassroom([FromRoute] int id)
+        public IActionResult RemoveCellar([FromRoute] int id)
         {
             if (id <= 0)
                 return BadRequest();
