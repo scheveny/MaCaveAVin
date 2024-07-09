@@ -24,11 +24,11 @@ namespace Dal.Migrations
 
             modelBuilder.Entity("DomainModel.Bottle", b =>
                 {
-                    b.Property<int>("BottleID")
+                    b.Property<int>("BottleId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BottleID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BottleId"));
 
                     b.Property<string>("Appellation")
                         .IsRequired()
@@ -49,17 +49,13 @@ namespace Dal.Migrations
                     b.Property<int>("DrawerNb")
                         .HasColumnType("int");
 
-                    b.Property<string>("PeakYears")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("PeakEnd")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PeakStart")
+                        .HasColumnType("int");
 
                     b.Property<int>("StackInDrawerNb")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StorageEndYear")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StorageStartYear")
                         .HasColumnType("int");
 
                     b.Property<string>("WineColor")
@@ -67,7 +63,7 @@ namespace Dal.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("BottleID");
+                    b.HasKey("BottleId");
 
                     b.HasIndex("CellarId");
 

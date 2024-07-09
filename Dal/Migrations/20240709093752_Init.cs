@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Dal.Migrations
 {
     /// <inheritdoc />
-    public partial class InitCellarDatabase : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -95,22 +95,21 @@ namespace Dal.Migrations
                 name: "Bottle",
                 columns: table => new
                 {
-                    BottleID = table.Column<int>(type: "int", nullable: false)
+                    BottleId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BottleName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     BottleYear = table.Column<int>(type: "int", nullable: false),
                     WineColor = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Appellation = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    StorageStartYear = table.Column<int>(type: "int", nullable: false),
-                    StorageEndYear = table.Column<int>(type: "int", nullable: false),
+                    PeakStart = table.Column<int>(type: "int", nullable: false),
+                    PeakEnd = table.Column<int>(type: "int", nullable: false),
                     DrawerNb = table.Column<int>(type: "int", nullable: false),
                     StackInDrawerNb = table.Column<int>(type: "int", nullable: false),
-                    PeakYears = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CellarId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Bottle", x => x.BottleID);
+                    table.PrimaryKey("PK_Bottle", x => x.BottleId);
                     table.ForeignKey(
                         name: "FK_Bottle_Cellar_CellarId",
                         column: x => x.CellarId,

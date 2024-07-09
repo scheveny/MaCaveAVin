@@ -11,7 +11,7 @@ namespace DomainModel
     [Table("Bottle")]
     public class Bottle
     {
-        public int BottleID { get; set; }
+        public int BottleId { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -27,10 +27,10 @@ namespace DomainModel
         public string Appellation { get; set; }
 
         [Required]       
-        public int StorageStartYear { get; set; }
+        public int PeakStart { get; set; }
 
         [Required]
-        public int StorageEndYear { get; set; }
+        public int PeakEnd { get; set; }
 
         // Position Y bouteille
         [Required]
@@ -39,10 +39,6 @@ namespace DomainModel
         // Position X bouteille
         [Required]
         public int StackInDrawerNb { get; set; }
-
-        // Apogée
-        [Required]
-        public string PeakYears { get; set; }
 
         public Cellar Cellar { get; set; }
 
