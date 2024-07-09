@@ -1,7 +1,10 @@
 ﻿using Dal;
 using DomainModel;
+using MaCaveAVin.Interfaces;
+using MaCaveAVin.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace MaCaveAVin.Controllers
 {
@@ -10,10 +13,12 @@ namespace MaCaveAVin.Controllers
     public class UserController : ControllerBase
     {
         private readonly CellarContext _context;
+        private readonly IAgeValidationService _ageValidationService;
 
-        public UserController(CellarContext context)
+        public UserController(CellarContext context, IAgeValidationService ageValidationService)
         {
             _context = context;
+            _ageValidationService = ageValidationService;
         }
 
         // GET: /User
@@ -39,7 +44,7 @@ namespace MaCaveAVin.Controllers
             return Ok(user);
         }
 
-        // POST: /Student
+        // POST: /User
         [HttpPost]
         public IActionResult CreateUser([FromBody] User user)
         {
@@ -48,13 +53,28 @@ namespace MaCaveAVin.Controllers
                 return BadRequest();
             }
 
+            var ageValidationResult = _ageValidationService.ValidateAge(user.Birthday);
+            if (ageValidationResult != ValidationResult.Success)
+            {
+                return BadRequest(ageValidationResult.ErrorMessage);
+            }
+
+            var context = new ValidationContext(user);
+            var results = new List<ValidationResult>();
+            bool isValid = Validator.TryValidateObject(user, context, results, true);
+
+            if (!isValid)
+            {
+                return BadRequest(results);
+            }
+
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            return Created($"student/{user.UserId}", user);
+            return Created($"user/{user.UserId}", user);
         }
 
-        // PUT: /Student/5
+        // PUT: /User/5
         [HttpPut("{id}")]
         public IActionResult UpdateUser([FromRoute] int id, [FromBody] User user)
         {
@@ -69,27 +89,41 @@ namespace MaCaveAVin.Controllers
                 return NotFound();
             }
 
+            var ageValidationResult = _ageValidationService.ValidateAge(user.Birthday);
+            if (ageValidationResult != ValidationResult.Success)
+            {
+                return BadRequest(ageValidationResult.ErrorMessage);
+            }
+
+            var context = new ValidationContext(user);
+            var results = new List<ValidationResult>();
+            bool isValid = Validator.TryValidateObject(user, context, results, true);
+
+            if (!isValid)
+            {
+                return BadRequest(results);
+            }
+
             _context.Users.Update(existingUser);
             _context.SaveChanges();
 
             return NoContent();
         }
 
-        // DELETE: /Student/5
+        // DELETE: /User/5
         [HttpDelete("{id}")]
         public IActionResult DeleteUser([FromRoute] int id)
         {
-            var student = _context.Users.Find(id);
-            if (student == null)
+            var user = _context.Users.Find(id);
+            if (user == null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(student);
+            _context.Users.Remove(user);
             _context.SaveChanges();
 
             return NoContent();
         }
     }
 }
-

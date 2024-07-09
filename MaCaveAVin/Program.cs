@@ -1,5 +1,7 @@
 
 using Dal;
+using MaCaveAVin.Interfaces;
+using MaCaveAVin.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace MaCaveAVin
@@ -11,6 +13,7 @@ namespace MaCaveAVin
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddScoped<IAgeValidationService, AgeValidationService>();
 
             // Ajouter les services de contrôleur
             builder.Services.AddControllers();
