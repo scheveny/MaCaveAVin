@@ -43,7 +43,6 @@ namespace DomainModel
         [Required]
         public int StackInDrawerNb { get; set; }
 
-        //public DateTime AvgPeak {  get; set; }
         public Cellar Cellar { get; set; }
 
         public int CellarId { get; set; }
