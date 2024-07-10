@@ -16,19 +16,19 @@ namespace MaCaveAVin.Controllers
         private readonly CellarContext context;
         private readonly IPositionService positionService;
 
-        private readonly CellarContext _context;
-        private readonly IBottleService _bottleService;
+        //private readonly CellarContext _context;
+        private readonly IPeakService _peakService;
 
         //public BottleController(CellarContext context, IBottleService bottleService) //injection de dépendances
         //{
         //    _context = context;
         //    _bottleService = bottleService;
         //}
-        public BottleController(CellarContext context, IPositionService positionService, IBottleService bottleService) // Dependency injection
+        public BottleController(CellarContext context, IPositionService positionService, IPeakService bottleService) // Dependency injection
         {
             this.context = context;
             this.positionService = positionService;
-            this._bottleService = bottleService;
+            this._peakService = bottleService;
         }
 
         [HttpGet]
@@ -61,7 +61,8 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<Bottle> AddBottle([FromBody] Bottle bottle)
         {
-            _bottleService.CalculateIdealPeak(bottle);
+            _peakService.CalculateIdealPeak(bottle);
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
