@@ -5,6 +5,6 @@ namespace MaCaveAVin.Interfaces
 {
     public interface IPeakService
     {
-        public CalculateIdealPeak(Bottle bottle);
+        void CalculateIdealPeak(Bottle bottle);
     }
 }
