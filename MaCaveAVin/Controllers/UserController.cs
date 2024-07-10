@@ -1,8 +1,6 @@
 ﻿using Dal;
 using DomainModel;
 using MaCaveAVin.Interfaces;
-using MaCaveAVin.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
@@ -23,6 +21,8 @@ namespace MaCaveAVin.Controllers
 
         // GET: /User
         [HttpGet]
+        [ProducesResponseType(200)]
+        [Produces(typeof(List<User>))]
         public IActionResult GetUsers()
         {
             var users = _context.Users.ToList();
@@ -31,6 +31,10 @@ namespace MaCaveAVin.Controllers
 
         // GET: /User/5
         [HttpGet("{id}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200)]
+        [Produces(typeof(User))]
         public IActionResult GetUser([FromRoute] int id)
         {
             if (id <= 0)
@@ -46,6 +50,8 @@ namespace MaCaveAVin.Controllers
 
         // POST: /User
         [HttpPost]
+        [ProducesResponseType(201)]
+        [Produces(typeof(User))]
         public IActionResult CreateUser([FromBody] User user)
         {
             if (user == null)
@@ -76,6 +82,9 @@ namespace MaCaveAVin.Controllers
 
         // PUT: /User/5
         [HttpPut("{id}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [Produces(typeof(User))]
         public IActionResult UpdateUser([FromRoute] int id, [FromBody] User user)
         {
             if (id != user.UserId || user == null)
@@ -112,6 +121,10 @@ namespace MaCaveAVin.Controllers
 
         // DELETE: /User/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200)]
+        [Produces(typeof(User))]
         public IActionResult DeleteUser([FromRoute] int id)
         {
             var user = _context.Users.Find(id);

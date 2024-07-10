@@ -12,10 +12,10 @@ namespace MaCaveAVin
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Services
             builder.Services.AddScoped<IAgeValidationService, AgeValidationService>();
+            builder.Services.AddScoped<IPositionService, PositionService>();
 
-            // Ajouter les services de contrôleur
             builder.Services.AddControllers();
             builder.Services.AddDbContext<CellarContext>(options =>
                                     options.UseSqlServer(builder.Configuration.GetConnectionString("CellarDatabase")));

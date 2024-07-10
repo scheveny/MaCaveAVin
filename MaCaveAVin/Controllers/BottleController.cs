@@ -1,8 +1,11 @@
 ﻿using Dal;
 using DomainModel;
 using MaCaveAVin.Filters;
+using MaCaveAVin.Interfaces;
+using MaCaveAVin.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace MaCaveAVin.Controllers
 {
@@ -11,28 +14,27 @@ namespace MaCaveAVin.Controllers
     public class BottleController : ControllerBase
     {
         private readonly CellarContext context;
+        private readonly IPositionService positionService;
 
-        public BottleController(CellarContext context) //injection de dépendances
+        public BottleController(CellarContext context, IPositionService positionService) // Dependency injection
         {
             this.context = context;
+            this.positionService = positionService;
         }
-
 
         [HttpGet]
-        [ProducesResponseType(200)]
-        [Produces(typeof(List<Bottle>))]
-        public IActionResult GetBottles()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<IEnumerable<Bottle>> GetBottles()
         {
-            return Ok(context.Bottles.ToList());
+            var bottles = context.Bottles.ToList();
+            return Ok(bottles);
         }
 
-        // GET : /class/5
         [HttpGet("{id}")]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(200)]
-        [Produces(typeof(Cellar))]
-        public IActionResult GetBottle([FromRoute] int id)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<Bottle> GetBottle(int id)
         {
             if (id <= 0)
                 return BadRequest();
@@ -45,43 +47,50 @@ namespace MaCaveAVin.Controllers
             return Ok(bottle);
         }
 
-        // POST : /class (avec body)
         [HttpPost]
-        [ProducesResponseType(201)]
-        [Produces(typeof(Bottle))]
-        public IActionResult AddBottle([FromBody] Bottle bottle)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Bottle> AddBottle([FromBody] Bottle bottle)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Find the first available position using the position service
+            var position = positionService.FindFirstAvailablePosition(bottle.CellarId);
+            if (position == null)
+                return BadRequest("No available position found.");
+
+            bottle.DrawerNb = position.Value.Item1;
+            bottle.StackInDrawerNb = position.Value.Item2;
+
             context.Bottles.Add(bottle);
             context.SaveChanges();
 
-            return Created($"cellar/{bottle.BottleId}", bottle);
+            return CreatedAtAction(nameof(GetBottle), new { id = bottle.BottleId }, bottle);
         }
 
-        // PUT : /class/5 (avec body)
         [HttpPut("{id}")]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(204)]
-        public IActionResult UpdateBottle(
-            [FromRoute] int id,
-            [FromBody] Bottle bottle)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public IActionResult UpdateBottle(int id, [FromBody] Bottle bottle)
         {
             if (id <= 0 || id != bottle.BottleId)
                 return BadRequest();
 
-            // mise à jour
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             context.Bottles.Update(bottle);
             context.SaveChanges();
 
             return NoContent();
         }
 
-        // DELETE : /class/5
         [HttpDelete("{id}")]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(200)]
-        [Produces(typeof(Cellar))]
-        public IActionResult RemoveBottle([FromRoute] int id)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<Bottle> RemoveBottle(int id)
         {
             if (id <= 0)
                 return BadRequest();
@@ -97,13 +106,11 @@ namespace MaCaveAVin.Controllers
             return Ok(bottle);
         }
 
-        // GET : class/customerror
         [CustomExceptionFilter]
         [HttpGet("customerror")]
         public IActionResult CustomError()
         {
-            throw new NotImplementedException("Méthode non implementé");
-            return Ok();
+            throw new NotImplementedException("Method not implemented");
         }
     }
 }
