@@ -103,6 +103,7 @@ namespace Dal.Migrations
                     Appellation = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     PeakStart = table.Column<int>(type: "int", nullable: false),
                     PeakEnd = table.Column<int>(type: "int", nullable: false),
+                    IdealPeak = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DrawerNb = table.Column<int>(type: "int", nullable: false),
                     StackInDrawerNb = table.Column<int>(type: "int", nullable: false),
                     CellarId = table.Column<int>(type: "int", nullable: false)

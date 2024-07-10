@@ -1,10 +1,10 @@
 ﻿using DomainModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace MaCaveAVin.Interfaces
+namespace Dal.Interfaces
 {
     public interface IPeakService
     {
-        void CalculateIdealPeak(Bottle bottle);
+       public DateTime CalculateIdealPeak(Bottle bottle);
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Dal;
 using DomainModel;
 using MaCaveAVin.Filters;
-using MaCaveAVin.Interfaces;
-using MaCaveAVin.Services;
+using Dal.Interfaces;
+using Dal.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -15,9 +15,9 @@ namespace MaCaveAVin.Controllers
     {
         private readonly CellarContext context;
         private readonly IPositionService positionService;
-        private readonly IBottleService _bottleService;
+        private readonly IPeakService _peakService;
 
-        public BottleController(CellarContext context, IPositionService positionService, IBottleService bottleService) // Dependency injection
+        public BottleController(CellarContext context, IPositionService positionService, IPeakService bottleService) // Dependency injection
         {
             this.context = context;
             this.positionService = positionService;

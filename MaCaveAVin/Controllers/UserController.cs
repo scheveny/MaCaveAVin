@@ -1,6 +1,6 @@
 ﻿using Dal;
 using DomainModel;
-using MaCaveAVin.Interfaces;
+using Dal.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 

@@ -1,12 +1,12 @@
 ﻿using DomainModel;
-using MaCaveAVin.Interfaces;
+using Dal.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
-namespace MaCaveAVin.Services
+namespace Dal.Services
 {
     public class PeakService : IPeakService
     {
-        public PeakService(Bottle bottle)
+        public DateTime CalculateIdealPeak(Bottle bottle)
         {
             int idealYear = (bottle.PeakStart + bottle.PeakEnd) / 2;
             bottle.IdealPeak = new DateTime(idealYear, 1, 1);

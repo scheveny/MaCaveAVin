@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MaCaveAVin.Interfaces
+namespace Dal.Interfaces
 {
     public interface IAgeValidationService
     {

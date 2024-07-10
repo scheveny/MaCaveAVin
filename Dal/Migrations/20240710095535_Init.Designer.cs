@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Dal.Migrations
 {
     [DbContext(typeof(CellarContext))]
-    [Migration("20240709122426_Init")]
+    [Migration("20240710095535_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -51,6 +51,9 @@ namespace Dal.Migrations
 
                     b.Property<int>("DrawerNb")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("IdealPeak")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("PeakEnd")
                         .HasColumnType("int");

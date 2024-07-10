@@ -1,9 +1,9 @@
 ﻿using DomainModel;
 using Dal;
 using System.Linq;
-using MaCaveAVin.Interfaces;
+using Dal.Interfaces;
 
-namespace MaCaveAVin.Services
+namespace Dal.Services
 {
     public class PositionService : IPositionService
     {

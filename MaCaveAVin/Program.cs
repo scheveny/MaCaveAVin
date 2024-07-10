@@ -15,7 +15,7 @@ namespace MaCaveAVin
             // Services
             builder.Services.AddScoped<IAgeValidationService, AgeValidationService>();
             builder.Services.AddScoped<IPositionService, PositionService>();
-            builder.Services.AddScoped<IPositionService, PeakService>();
+            builder.Services.AddScoped<IPeakService, PeakService>();
 
             builder.Services.AddControllers();
             builder.Services.AddDbContext<CellarContext>(options =>

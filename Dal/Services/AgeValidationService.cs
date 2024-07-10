@@ -1,7 +1,7 @@
-﻿using MaCaveAVin.Interfaces;
+﻿using Dal.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
-namespace MaCaveAVin.Services
+namespace Dal.Services
 {
     public class AgeValidationService : IAgeValidationService
     {

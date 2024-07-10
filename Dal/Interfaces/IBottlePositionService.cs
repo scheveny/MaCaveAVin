@@ -1,4 +1,4 @@
-﻿namespace MaCaveAVin.Interfaces
+﻿namespace Dal.Interfaces
 {
     public interface IPositionService
     {
