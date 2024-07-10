@@ -32,6 +32,9 @@ namespace DomainModel
         [Required]
         public int PeakEnd { get; set; }
 
+        //apogée
+        public DateTime IdealPeak { get; set; }
+
         // Position Y bouteille
         [Required]
         public int DrawerNb { get; set; }
