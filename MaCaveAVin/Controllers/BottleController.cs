@@ -21,7 +21,7 @@ namespace MaCaveAVin.Controllers
         {
             this.context = context;
             this.positionService = positionService;
-            this._bottleService = bottleService;
+            this._peakService = bottleService;
         }
 
         [HttpGet]
@@ -54,7 +54,8 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<Bottle> AddBottle([FromBody] Bottle bottle)
         {
-            _bottleService.CalculateIdealPeak(bottle);
+            _peakService.CalculateIdealPeak(bottle);
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
