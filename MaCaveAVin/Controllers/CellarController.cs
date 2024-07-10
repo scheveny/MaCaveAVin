@@ -18,7 +18,6 @@ namespace MaCaveAVin.Controllers
             this.context = context;
         }
 
-
         [HttpGet]
         [ProducesResponseType(200)]
         [Produces(typeof(List<Cellar>))]
@@ -27,7 +26,6 @@ namespace MaCaveAVin.Controllers
             return Ok(context.Cellars.ToList());
         }
 
-        // GET : /class/5
         [HttpGet("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -46,19 +44,29 @@ namespace MaCaveAVin.Controllers
             return Ok(cellar);
         }
 
-        // POST : /class (avec body)
         [HttpPost]
         [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
         [Produces(typeof(Cellar))]
         public IActionResult AddCellar([FromBody] Cellar cellar)
         {
+            // Vérifie si le modèle est valide
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Vérifie que les valeurs fournies par l'utilisateur sont valides
+            if (cellar.NbRow <= 0)
+                return BadRequest("The number of rows (NbRow) must be greater than 0.");
+
+            if (cellar.NbStackRow <= 0)
+                return BadRequest("The number of stacks per row (NbStackRow) must be greater than 0.");
+
             context.Cellars.Add(cellar);
             context.SaveChanges();
 
             return Created($"cellar/{cellar.CellarId}", cellar);
         }
 
-        // PUT : /class/5 (avec body)
         [HttpPut("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
@@ -69,6 +77,10 @@ namespace MaCaveAVin.Controllers
             if (id <= 0 || id != cellar.CellarId)
                 return BadRequest();
 
+            // Vérifie si le modèle est valide
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             // mise à jour
             context.Cellars.Update(cellar);
             context.SaveChanges();
@@ -76,7 +88,6 @@ namespace MaCaveAVin.Controllers
             return NoContent();
         }
 
-        // DELETE : /class/5
         [HttpDelete("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -98,7 +109,6 @@ namespace MaCaveAVin.Controllers
             return Ok(cellar);
         }
 
-        // GET : class/customerror
         [CustomExceptionFilter]
         [HttpGet("customerror")]
         public IActionResult CustomError()
