@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Dal;
+using Dal.Interfaces;
 using DomainModel;
 using MaCaveAVin.Filters;
 using DomainModel.DTO;
-using Dal.IRepositories;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MaCaveAVin.Controllers
 {
@@ -13,21 +15,22 @@ namespace MaCaveAVin.Controllers
     [Produces("application/json")]
     public class CellarController : ControllerBase
     {
-        private readonly ICellarRepository cellarRepository;
-        private readonly IUserRepository userRepository;
+        private readonly ICellarRepository _cellarRepository;
+        private readonly IUserRepository _userRepository;
 
         public CellarController(ICellarRepository cellarRepository, IUserRepository userRepository) // Injection de dépendances
         {
-            this.cellarRepository = cellarRepository;
-            this.userRepository = userRepository;
+            _cellarRepository = cellarRepository;
+            _userRepository = userRepository;
         }
 
         [HttpGet]
         [ProducesResponseType(200)]
         [Produces(typeof(List<Cellar>))]
-        public IActionResult GetCellars()
+        public async Task<IActionResult> GetCellars()
         {
-            return Ok(cellarRepository.GetAllCellars());
+            var cellars = await _cellarRepository.GetAllCellarsAsync();
+            return Ok(cellars);
         }
 
         [HttpGet("{id}")]
@@ -35,12 +38,12 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(200)]
         [Produces(typeof(Cellar))]
-        public IActionResult GetCellarById([FromRoute] int id)
+        public async Task<IActionResult> GetCellarById([FromRoute] int id)
         {
             if (id <= 0)
                 return BadRequest();
 
-            var cellar = cellarRepository.GetCellarById(id);
+            var cellar = await _cellarRepository.GetCellarByIdAsync(id);
 
             if (cellar == null)
                 return NotFound();
@@ -52,12 +55,12 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [Produces(typeof(List<Cellar>))]
-        public IActionResult SearchCellars([FromQuery] string name)
+        public async Task<IActionResult> SearchCellars([FromQuery] string name)
         {
             if (string.IsNullOrEmpty(name))
                 return BadRequest("Name parameter is required.");
 
-            var cellars = cellarRepository.SearchCellarsByName(name);
+            var cellars = await _cellarRepository.SearchCellarsByNameAsync(name);
 
             if (!cellars.Any())
                 return NotFound();
@@ -69,9 +72,9 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [Produces(typeof(List<Cellar>))]
-        public IActionResult GetAllCellarsByModel([FromRoute] int modelId)
+        public async Task<IActionResult> GetAllCellarsByModel([FromRoute] int modelId)
         {
-            var cellars = cellarRepository.GetCellarsByModel(modelId);
+            var cellars = await _cellarRepository.GetCellarsByModelAsync(modelId);
 
             if (cellars == null || !cellars.Any())
                 return NotFound();
@@ -83,9 +86,9 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [Produces(typeof(List<Cellar>))]
-        public IActionResult GetAllCellarsByCategory([FromRoute] int categoryId)
+        public async Task<IActionResult> GetAllCellarsByCategory([FromRoute] int categoryId)
         {
-            var cellars = cellarRepository.GetCellarsByCategory(categoryId);
+            var cellars = await _cellarRepository.GetCellarsByCategoryAsync(categoryId);
 
             if (cellars == null || !cellars.Any())
                 return NotFound();
@@ -97,7 +100,7 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [Produces(typeof(Cellar))]
-        public IActionResult AddCellar([FromBody] CreateCellarDto cellarDto)
+        public async Task<IActionResult> AddCellar([FromBody] CreateCellarDto cellarDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -108,7 +111,7 @@ namespace MaCaveAVin.Controllers
             if (cellarDto.NbStackRow <= 0)
                 return BadRequest("The number of stacks per row (NbStackRow) must be greater than 0.");
 
-            var user = userRepository.GetUserById(cellarDto.UserId);
+            var user = await _userRepository.GetUserByIdAsync(cellarDto.UserId);
             if (user == null)
                 return BadRequest("Invalid UserId.");
 
@@ -122,7 +125,7 @@ namespace MaCaveAVin.Controllers
                 CellarModelId = cellarDto.CellarModelId
             };
 
-            cellarRepository.AddCellar(cellar);
+            await _cellarRepository.AddCellarAsync(cellar);
 
             var result = new CellarDto
             {
@@ -146,9 +149,7 @@ namespace MaCaveAVin.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
-        public IActionResult UpdateCellar(
-            [FromRoute] int id,
-            [FromBody] Cellar cellar)
+        public async Task<IActionResult> UpdateCellar([FromRoute] int id, [FromBody] Cellar cellar)
         {
             if (id <= 0 || id != cellar.CellarId)
                 return BadRequest();
@@ -158,7 +159,7 @@ namespace MaCaveAVin.Controllers
                 return BadRequest(ModelState);
 
             // mise à jour
-            cellarRepository.UpdateCellar(cellar);
+            await _cellarRepository.UpdateCellarAsync(cellar);
 
             return NoContent();
         }
@@ -168,17 +169,17 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(200)]
         [Produces(typeof(Cellar))]
-        public IActionResult RemoveCellar([FromRoute] int id)
+        public async Task<IActionResult> RemoveCellar([FromRoute] int id)
         {
             if (id <= 0)
                 return BadRequest();
 
-            var cellar = cellarRepository.GetCellarById(id);
+            var cellar = await _cellarRepository.GetCellarByIdAsync(id);
 
             if (cellar == null)
                 return NotFound();
 
-            cellarRepository.RemoveCellar(cellar);
+            await _cellarRepository.RemoveCellarAsync(cellar);
 
             return Ok(cellar);
         }

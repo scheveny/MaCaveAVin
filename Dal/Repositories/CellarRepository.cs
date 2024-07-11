@@ -1,5 +1,5 @@
-﻿using Dal.IRepositories;
-using DomainModel;
+﻿using DomainModel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,56 +10,56 @@ namespace Dal.Repositories
 {
     public class CellarRepository : ICellarRepository
     {
-        private readonly CellarContext context;
+        private readonly CellarContext _context;
 
         public CellarRepository(CellarContext context)
         {
-            this.context = context;
+            _context = context;
         }
 
-        public List<Cellar> GetAllCellars()
+        public async Task<List<Cellar>> GetAllCellarsAsync()
         {
-            return context.Cellars.ToList();
+            return await _context.Cellars.ToListAsync();
         }
 
-        public Cellar GetCellarById(int id)
+        public async Task<Cellar> GetCellarByIdAsync(int id)
         {
-            return context.Cellars.Find(id);
+            return await _context.Cellars.FindAsync(id);
         }
 
-        public List<Cellar> SearchCellarsByName(string name)
+        public async Task<List<Cellar>> SearchCellarsByNameAsync(string name)
         {
-            return context.Cellars
+            return await _context.Cellars
                 .Where(c => c.CellarName.Contains(name))
-                .ToList();
+                .ToListAsync();
         }
 
-        public List<Cellar> GetCellarsByModel(int modelId)
+        public async Task<List<Cellar>> GetCellarsByModelAsync(int modelId)
         {
-            return context.Cellars.Where(c => c.CellarModelId == modelId).ToList();
+            return await _context.Cellars.Where(c => c.CellarModelId == modelId).ToListAsync();
         }
 
-        public List<Cellar> GetCellarsByCategory(int categoryId)
+        public async Task<List<Cellar>> GetCellarsByCategoryAsync(int categoryId)
         {
-            return context.Cellars.Where(c => c.CellarCategoryId == categoryId).ToList();
+            return await _context.Cellars.Where(c => c.CellarCategoryId == categoryId).ToListAsync();
         }
 
-        public void AddCellar(Cellar cellar)
+        public async Task AddCellarAsync(Cellar cellar)
         {
-            context.Cellars.Add(cellar);
-            context.SaveChanges();
+            await _context.Cellars.AddAsync(cellar);
+            await _context.SaveChangesAsync();
         }
 
-        public void UpdateCellar(Cellar cellar)
+        public async Task UpdateCellarAsync(Cellar cellar)
         {
-            context.Cellars.Update(cellar);
-            context.SaveChanges();
+            _context.Cellars.Update(cellar);
+            await _context.SaveChangesAsync();
         }
 
-        public void RemoveCellar(Cellar cellar)
+        public async Task RemoveCellarAsync(Cellar cellar)
         {
-            context.Cellars.Remove(cellar);
-            context.SaveChanges();
+            _context.Cellars.Remove(cellar);
+            await _context.SaveChangesAsync();
         }
     }
 }

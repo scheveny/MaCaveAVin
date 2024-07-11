@@ -1,9 +1,9 @@
 ﻿using Dal.Interfaces;
-using Dal.IRepositories;
 using DomainModel;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace MaCaveAVin.Controllers
 {
@@ -24,9 +24,9 @@ namespace MaCaveAVin.Controllers
         [HttpGet]
         [ProducesResponseType(200)]
         [Produces(typeof(List<User>))]
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
-            var users = _userRepository.GetAllUsers();
+            var users = await _userRepository.GetAllUsersAsync();
             return Ok(users);
         }
 
@@ -36,12 +36,12 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(200)]
         [Produces(typeof(User))]
-        public IActionResult GetUser([FromRoute] int id)
+        public async Task<IActionResult> GetUser([FromRoute] int id)
         {
             if (id <= 0)
                 return BadRequest("id incorrect");
 
-            var user = _userRepository.GetUserById(id);
+            var user = await _userRepository.GetUserByIdAsync(id);
             if (user == null)
             {
                 return NotFound();
@@ -53,7 +53,7 @@ namespace MaCaveAVin.Controllers
         [HttpPost]
         [ProducesResponseType(201)]
         [Produces(typeof(User))]
-        public IActionResult CreateUser([FromBody] User user)
+        public async Task<IActionResult> CreateUser([FromBody] User user)
         {
             if (user == null)
             {
@@ -75,7 +75,7 @@ namespace MaCaveAVin.Controllers
                 return BadRequest(results);
             }
 
-            _userRepository.AddUser(user);
+            await _userRepository.AddUserAsync(user);
 
             return Created($"user/{user.UserId}", user);
         }
@@ -85,14 +85,14 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [Produces(typeof(User))]
-        public IActionResult UpdateUser([FromRoute] int id, [FromBody] User user)
+        public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] User user)
         {
             if (id != user.UserId || user == null)
             {
                 return BadRequest();
             }
 
-            var existingUser = _userRepository.GetUserById(id);
+            var existingUser = await _userRepository.GetUserByIdAsync(id);
             if (existingUser == null)
             {
                 return NotFound();
@@ -113,7 +113,7 @@ namespace MaCaveAVin.Controllers
                 return BadRequest(results);
             }
 
-            _userRepository.UpdateUser(user);
+            await _userRepository.UpdateUserAsync(user);
 
             return NoContent();
         }
@@ -124,15 +124,15 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(200)]
         [Produces(typeof(User))]
-        public IActionResult DeleteUser([FromRoute] int id)
+        public async Task<IActionResult> DeleteUser([FromRoute] int id)
         {
-            var user = _userRepository.GetUserById(id);
+            var user = await _userRepository.GetUserByIdAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            _userRepository.DeleteUser(user);
+            await _userRepository.DeleteUserAsync(user);
 
             return NoContent();
         }

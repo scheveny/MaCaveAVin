@@ -1,21 +1,13 @@
 ﻿using DomainModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Dal.IRepositories
+public interface ICellarRepository
 {
-    public interface ICellarRepository
-    {
-        List<Cellar> GetAllCellars();
-        Cellar GetCellarById(int id);
-        List<Cellar> SearchCellarsByName(string name);
-        List<Cellar> GetCellarsByModel(int modelId);
-        List<Cellar> GetCellarsByCategory(int categoryId);
-        void AddCellar(Cellar cellar);
-        void UpdateCellar(Cellar cellar);
-        void RemoveCellar(Cellar cellar);
-    }
+    Task<List<Cellar>> GetAllCellarsAsync();
+    Task<Cellar> GetCellarByIdAsync(int id);
+    Task<List<Cellar>> SearchCellarsByNameAsync(string name);
+    Task<List<Cellar>> GetCellarsByModelAsync(int modelId);
+    Task<List<Cellar>> GetCellarsByCategoryAsync(int categoryId);
+    Task AddCellarAsync(Cellar cellar);
+    Task UpdateCellarAsync(Cellar cellar);
+    Task RemoveCellarAsync(Cellar cellar);
 }
