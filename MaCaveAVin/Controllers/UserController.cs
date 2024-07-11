@@ -1,7 +1,8 @@
-﻿using Dal;
+﻿using Dal.Interfaces;
+using Dal.IRepositories;
 using DomainModel;
-using Dal.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace MaCaveAVin.Controllers
@@ -10,12 +11,12 @@ namespace MaCaveAVin.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly CellarContext _context;
+        private readonly IUserRepository _userRepository;
         private readonly IAgeValidationService _ageValidationService;
 
-        public UserController(CellarContext context, IAgeValidationService ageValidationService)
+        public UserController(IUserRepository userRepository, IAgeValidationService ageValidationService)
         {
-            _context = context;
+            _userRepository = userRepository;
             _ageValidationService = ageValidationService;
         }
 
@@ -25,7 +26,7 @@ namespace MaCaveAVin.Controllers
         [Produces(typeof(List<User>))]
         public IActionResult GetUsers()
         {
-            var users = _context.Users.ToList();
+            var users = _userRepository.GetAllUsers();
             return Ok(users);
         }
 
@@ -40,7 +41,7 @@ namespace MaCaveAVin.Controllers
             if (id <= 0)
                 return BadRequest("id incorrect");
 
-            var user = _context.Users.Find(id);
+            var user = _userRepository.GetUserById(id);
             if (user == null)
             {
                 return NotFound();
@@ -74,8 +75,7 @@ namespace MaCaveAVin.Controllers
                 return BadRequest(results);
             }
 
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            _userRepository.AddUser(user);
 
             return Created($"user/{user.UserId}", user);
         }
@@ -92,7 +92,7 @@ namespace MaCaveAVin.Controllers
                 return BadRequest();
             }
 
-            var existingUser = _context.Users.Find(id);
+            var existingUser = _userRepository.GetUserById(id);
             if (existingUser == null)
             {
                 return NotFound();
@@ -113,8 +113,7 @@ namespace MaCaveAVin.Controllers
                 return BadRequest(results);
             }
 
-            _context.Users.Update(existingUser);
-            _context.SaveChanges();
+            _userRepository.UpdateUser(user);
 
             return NoContent();
         }
@@ -127,14 +126,13 @@ namespace MaCaveAVin.Controllers
         [Produces(typeof(User))]
         public IActionResult DeleteUser([FromRoute] int id)
         {
-            var user = _context.Users.Find(id);
+            var user = _userRepository.GetUserById(id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(user);
-            _context.SaveChanges();
+            _userRepository.DeleteUser(user);
 
             return NoContent();
         }
