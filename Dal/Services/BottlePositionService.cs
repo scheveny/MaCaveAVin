@@ -1,7 +1,7 @@
 ﻿using DomainModel;
 using Dal;
 using System.Linq;
-using Dal.Interfaces;
+using Dal.IServices;
 
 namespace Dal.Services
 {

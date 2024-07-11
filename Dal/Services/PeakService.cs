@@ -1,5 +1,5 @@
 ﻿using DomainModel;
-using Dal.Interfaces;
+using Dal.IServices;
 using System.ComponentModel.DataAnnotations;
 
 namespace Dal.Services

@@ -1,4 +1,4 @@
-﻿namespace Dal.Interfaces
+﻿namespace Dal.IServices
 {
     public interface IPositionService
     {
