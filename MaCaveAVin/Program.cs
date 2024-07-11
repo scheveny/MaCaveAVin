@@ -17,7 +17,11 @@ namespace MaCaveAVin
             builder.Services.AddScoped<IPositionService, PositionService>();
             builder.Services.AddScoped<IPeakService, PeakService>();
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(options =>
+                                 {
+                                     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+                                 });
+
             builder.Services.AddDbContext<CellarContext>(options =>
                                     options.UseSqlServer(builder.Configuration.GetConnectionString("CellarDatabase")));
 

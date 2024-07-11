@@ -9,8 +9,8 @@ namespace DomainModel.DTO
 {
     public class UserDto
     {
-        [Required]
         public int UserId { get; set; }
-        public ICollection<Cellar>? Cellars { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
     }
 }
