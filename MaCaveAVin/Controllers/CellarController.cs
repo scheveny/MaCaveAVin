@@ -4,6 +4,7 @@ using Dal;
 using DomainModel;
 using MaCaveAVin.Filters;
 using DomainModel.DTO;
+using Dal.IRepositories;
 
 namespace MaCaveAVin.Controllers
 {
@@ -12,11 +13,13 @@ namespace MaCaveAVin.Controllers
     [Produces("application/json")]
     public class CellarController : ControllerBase
     {
-        private readonly CellarContext context;
+        private readonly ICellarRepository cellarRepository;
+        private readonly IUserRepository userRepository;
 
-        public CellarController(CellarContext context) //injection de dépendances
+        public CellarController(ICellarRepository cellarRepository, IUserRepository userRepository) // Injection de dépendances
         {
-            this.context = context;
+            this.cellarRepository = cellarRepository;
+            this.userRepository = userRepository;
         }
 
         [HttpGet]
@@ -24,7 +27,7 @@ namespace MaCaveAVin.Controllers
         [Produces(typeof(List<Cellar>))]
         public IActionResult GetCellars()
         {
-            return Ok(context.Cellars.ToList());
+            return Ok(cellarRepository.GetAllCellars());
         }
 
         [HttpGet("{id}")]
@@ -37,7 +40,7 @@ namespace MaCaveAVin.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var cellar = context.Cellars.Find(id);
+            var cellar = cellarRepository.GetCellarById(id);
 
             if (cellar == null)
                 return NotFound();
@@ -54,9 +57,7 @@ namespace MaCaveAVin.Controllers
             if (string.IsNullOrEmpty(name))
                 return BadRequest("Name parameter is required.");
 
-            var cellars = context.Cellars
-                .Where(c => c.CellarName.Contains(name))
-                .ToList();
+            var cellars = cellarRepository.SearchCellarsByName(name);
 
             if (!cellars.Any())
                 return NotFound();
@@ -70,7 +71,7 @@ namespace MaCaveAVin.Controllers
         [Produces(typeof(List<Cellar>))]
         public IActionResult GetAllCellarsByModel([FromRoute] int modelId)
         {
-            var cellars = context.Cellars.Where(c => c.CellarModelId == modelId).ToList();
+            var cellars = cellarRepository.GetCellarsByModel(modelId);
 
             if (cellars == null || !cellars.Any())
                 return NotFound();
@@ -84,7 +85,7 @@ namespace MaCaveAVin.Controllers
         [Produces(typeof(List<Cellar>))]
         public IActionResult GetAllCellarsByCategory([FromRoute] int categoryId)
         {
-            var cellars = context.Cellars.Where(c => c.CellarCategoryId == categoryId).ToList();
+            var cellars = cellarRepository.GetCellarsByCategory(categoryId);
 
             if (cellars == null || !cellars.Any())
                 return NotFound();
@@ -107,7 +108,7 @@ namespace MaCaveAVin.Controllers
             if (cellarDto.NbStackRow <= 0)
                 return BadRequest("The number of stacks per row (NbStackRow) must be greater than 0.");
 
-            var user = context.Users.Find(cellarDto.UserId);
+            var user = userRepository.GetUserById(cellarDto.UserId);
             if (user == null)
                 return BadRequest("Invalid UserId.");
 
@@ -121,8 +122,7 @@ namespace MaCaveAVin.Controllers
                 CellarModelId = cellarDto.CellarModelId
             };
 
-            context.Cellars.Add(cellar);
-            context.SaveChanges();
+            cellarRepository.AddCellar(cellar);
 
             var result = new CellarDto
             {
@@ -158,8 +158,7 @@ namespace MaCaveAVin.Controllers
                 return BadRequest(ModelState);
 
             // mise à jour
-            context.Cellars.Update(cellar);
-            context.SaveChanges();
+            cellarRepository.UpdateCellar(cellar);
 
             return NoContent();
         }
@@ -174,13 +173,12 @@ namespace MaCaveAVin.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var cellar = context.Cellars.Find(id);
+            var cellar = cellarRepository.GetCellarById(id);
 
             if (cellar == null)
                 return NotFound();
 
-            context.Cellars.Remove(cellar);
-            context.SaveChanges();
+            cellarRepository.RemoveCellar(cellar);
 
             return Ok(cellar);
         }
