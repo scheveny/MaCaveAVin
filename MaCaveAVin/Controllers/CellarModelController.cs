@@ -1,8 +1,12 @@
-﻿using Dal;
+﻿using Dal.Interfaces;
+using Dal.IRepositories;
 using DomainModel;
 using MaCaveAVin.Filters;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MaCaveAVin.Controllers
 {
@@ -10,94 +14,86 @@ namespace MaCaveAVin.Controllers
     [ApiController]
     public class CellarModelController : ControllerBase
     {
-        private readonly CellarContext context;
+        private readonly ICellarModelRepository _cellarModelRepository;
 
-        public CellarModelController(CellarContext context) //injection de dépendances
+        public CellarModelController(ICellarModelRepository cellarModelRepository) // Injection de dépendances
         {
-            this.context = context;
+            _cellarModelRepository = cellarModelRepository;
         }
-
 
         [HttpGet]
         [ProducesResponseType(200)]
-        [Produces(typeof(List<Bottle>))]
-        public IActionResult GetCellarModels()
+        [Produces(typeof(List<CellarModel>))]
+        public async Task<IActionResult> GetCellarModels()
         {
-            return Ok(context.CellarModels.ToList());
+            var models = await _cellarModelRepository.GetAllCellarModelsAsync();
+            return Ok(models);
         }
 
-        // GET : /class/5
         [HttpGet("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(200)]
-        [Produces(typeof(Cellar))]
-        public IActionResult GetCellarModel([FromRoute] int id)
+        [Produces(typeof(CellarModel))]
+        public async Task<IActionResult> GetCellarModel([FromRoute] int id)
         {
             if (id <= 0)
                 return BadRequest();
 
-            var cellarModel = context.CellarModels.Find(id);
+            var model = await _cellarModelRepository.GetCellarModelByIdAsync(id);
 
-            if (cellarModel == null)
+            if (model == null)
                 return NotFound();
 
-            return Ok(cellarModel);
+            return Ok(model);
         }
 
-        // POST : /class (avec body)
         [HttpPost]
         [ProducesResponseType(201)]
         [Produces(typeof(CellarModel))]
-        public IActionResult AddCellarModel([FromBody] CellarModel cellarModel)
+        public async Task<IActionResult> AddCellarModel([FromBody] CellarModel cellarModel)
         {
-            context.CellarModels.Add(cellarModel);
-            context.SaveChanges();
+            if (cellarModel == null)
+                return BadRequest();
+
+            await _cellarModelRepository.AddCellarModelAsync(cellarModel);
 
             return Created($"cellar/{cellarModel.CellarModelId}", cellarModel);
         }
 
-        // PUT : /class/5 (avec body)
         [HttpPut("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
-        public IActionResult UpdateCellarModel(
-            [FromRoute] int id,
-            [FromBody] CellarModel cellarModel)
+        public async Task<IActionResult> UpdateCellarModel([FromRoute] int id, [FromBody] CellarModel cellarModel)
         {
             if (id <= 0 || id != cellarModel.CellarModelId)
                 return BadRequest();
 
-            // mise à jour
-            context.CellarModels.Update(cellarModel);
-            context.SaveChanges();
+            await _cellarModelRepository.UpdateCellarModelAsync(cellarModel);
 
             return NoContent();
         }
 
-        // DELETE : /class/5
         [HttpDelete("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(200)]
-        [Produces(typeof(Cellar))]
-        public IActionResult RemoveCellarModel([FromRoute] int id)
+        [Produces(typeof(CellarModel))]
+        public async Task<IActionResult> RemoveCellarModel([FromRoute] int id)
         {
             if (id <= 0)
                 return BadRequest();
 
-            var cellarModel = context.CellarModels.Find(id);
+            var model = await _cellarModelRepository.GetCellarModelByIdAsync(id);
 
-            if (cellarModel == null)
+            if (model == null)
                 return NotFound();
 
-            context.CellarModels.Remove(cellarModel);
-            context.SaveChanges();
+            await _cellarModelRepository.RemoveCellarModelAsync(model);
 
-            return Ok(cellarModel);
+            return Ok(model);
         }
 
-        // GET : class/customerror
         [CustomExceptionFilter]
         [HttpGet("customerror")]
         public IActionResult CustomError()

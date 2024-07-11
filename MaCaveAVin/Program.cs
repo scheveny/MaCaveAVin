@@ -1,6 +1,6 @@
-
 using Dal;
 using Dal.Interfaces;
+using Dal.IRepositories;
 using Dal.Repositories;
 using Dal.Services;
 using Microsoft.EntityFrameworkCore;
@@ -13,9 +13,12 @@ namespace MaCaveAVin
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Services
+            //Repositories
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ICellarRepository, CellarRepository>();
+            builder.Services.AddScoped<ICellarCategoryRepository, CellarCategoryRepository>();
+            builder.Services.AddScoped<ICellarModelRepository, CellarModelRepository>();
+            // Services
             builder.Services.AddScoped<IAgeValidationService, AgeValidationService>();
             builder.Services.AddScoped<IPositionService, PositionService>();
             builder.Services.AddScoped<IPeakService, PeakService>();
