@@ -1,7 +1,7 @@
 
 using Dal;
-using MaCaveAVin.Interfaces;
-using MaCaveAVin.Services;
+using Dal.Interfaces;
+using Dal.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace MaCaveAVin

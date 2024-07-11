@@ -6,6 +6,7 @@ using Dal.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace MaCaveAVin.Controllers
 {
@@ -48,6 +49,46 @@ namespace MaCaveAVin.Controllers
 
             return Ok(bottle);
         }
+
+        [HttpGet("cellar/{cellarId}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<IEnumerable<Bottle>> GetBottlesFromCellar(int cellarId)
+        {
+            if (cellarId <= 0)
+                return BadRequest();
+
+            var bottles = context.Bottles.Where(b => b.CellarId == cellarId).ToList();
+
+            if (!bottles.Any())
+                return NotFound();
+
+            return Ok(bottles);
+        }
+
+        // Nouvelle méthode pour récupérer toutes les bouteilles d'un utilisateur
+        [HttpGet("user/{userId}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<IEnumerable<Bottle>> GetAllUserBottles(int userId)
+        {
+            if (userId <= 0)
+                return BadRequest();
+
+            var userCellars = context.Cellars.Where(c => c.User.UserId == userId).Select(c => c.CellarId).ToList();
+            if (!userCellars.Any())
+                return NotFound();
+
+            var bottles = context.Bottles.Where(b => userCellars.Contains(b.CellarId)).ToList();
+            if (!bottles.Any())
+                return NotFound();
+
+            return Ok(bottles);
+        }
+
+
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
