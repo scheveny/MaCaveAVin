@@ -10,7 +10,6 @@ namespace DomainModel.DTO
     {
         public int BottleId { get; set; }
         public Cellar Cellar { get; set; }
-
         public int CellarId { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 
 using Dal;
-using Dal.Interfaces;
+using Dal.IServices;
 using Dal.IRepositories;
 using Dal.Repositories;
 using Dal.Services;
@@ -19,6 +19,8 @@ namespace MaCaveAVin
             builder.Services.AddScoped<IAgeValidationService, AgeValidationService>();
             builder.Services.AddScoped<IPositionService, PositionService>();
             builder.Services.AddScoped<IPeakService, PeakService>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IBottleRepository, BottleRepository>();
 
             builder.Services.AddControllers().AddJsonOptions(options =>
                                  {

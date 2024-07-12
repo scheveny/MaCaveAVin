@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\Bottle\" />
     <Folder Include="DTOs\Cellar\" />
     <Folder Include="DTOs\CellarCategory\" />
     <Folder Include="DTOs\CellarModel\" />
