@@ -1,4 +1,5 @@
 ﻿using DomainModel;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -6,9 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace Dal
 {
-    public class CellarContext : DbContext
+    public class CellarContext : IdentityDbContext<User>
     {
         #region DbSets
         public DbSet<User> Users { get; set; }

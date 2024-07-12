@@ -9,28 +9,35 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using DomainModel.DTOs.Bottle;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace MaCaveAVin.Controllers
 {
-    [Route("[controller]")]
+    [Route("[controller]/[Action]")]
     [ApiController]
     public class BottleController : ControllerBase
     {
         private readonly CellarContext context;
         private readonly IPositionService positionService;
-        private readonly IPeakService _peakService;
+        private readonly IPeakService peakService;
         private readonly IBottleRepository bottleRepository;
+        private readonly ILogger logger;
+        private readonly UserManager<User> userManager1;
 
-        public BottleController(CellarContext context, IBottleRepository bottleRepository, IPositionService positionService, IPeakService bottleService) // Dependency injection
+        #region -- CONSTRUCTEUR --
+        public BottleController(CellarContext context, ILogger<BottleController> logger, UserManager<User> userManager, IBottleRepository bottleRepository, IPositionService positionService, IPeakService bottleService) // Dependency injection
         {
             this.context = context;
             this.positionService = positionService;
-            this._peakService = bottleService;
+            this.peakService = bottleService;
             this.bottleRepository = bottleRepository;
+            this.logger = logger;
+            this.userManager1 = userManager;
         }
+        #endregion
 
-
+        #region -- GET --
         /* GetBottles without DTO
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -126,6 +133,10 @@ namespace MaCaveAVin.Controllers
         */
 
         // GetBottlesFromCellar with DTO
+        [HttpGet("cellar/{cellarId}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<BottleDto>>> GetBottlesFromCellar(int cellarId)
         {
             if (cellarId <= 0)
@@ -193,7 +204,9 @@ namespace MaCaveAVin.Controllers
 
             return Ok(bottleDtos);
         }
+        #endregion
 
+        #region -- POST --
         /* AddBottle without DTO
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -226,7 +239,7 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<BottleDto>> AddBottle([FromBody] Bottle bottle)
         {
-            _peakService.CalculateIdealPeak(bottle);
+            peakService.CalculateIdealPeak(bottle);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -243,7 +256,7 @@ namespace MaCaveAVin.Controllers
 
             var bottleDto = new BottleDto
             {
-                BottleId = newBottle.BottleId,
+                //BottleId = newBottle.BottleId,
                 BottleName = newBottle.BottleName
             };
 
@@ -286,7 +299,9 @@ namespace MaCaveAVin.Controllers
 
             return NoContent();
         }
+        #endregion
 
+        #region -- DELETE --
         /* RemoveBottle without DTO
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -332,12 +347,15 @@ namespace MaCaveAVin.Controllers
 
             return Ok(bottleDto);
         }
+        #endregion
 
+        #region -- EXCEPTION --
         [CustomExceptionFilter]
         [HttpGet("customerror")]
         public IActionResult CustomError()
         {
             throw new NotImplementedException("Method not implemented");
         }
+        #endregion
     }
 }

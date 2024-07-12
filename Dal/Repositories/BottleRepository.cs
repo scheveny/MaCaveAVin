@@ -14,6 +14,7 @@ namespace Dal.Repositories
 {
     public class BottleRepository(CellarContext context) : IBottleRepository
     {
+        #region -- GET --
         public async Task<List<Bottle>> GetAllAsync()
         {
             return await context.Bottles.ToListAsync();
@@ -28,7 +29,15 @@ namespace Dal.Repositories
         {
             return await context.Bottles.Where(b => b.CellarId == cellarId).ToListAsync();
         }
+        public async Task<List<Bottle>> GetBottlesByUserIdAsync(int userId)
+        {
+            var userCellars = await context.Cellars.Where(c => c.User.UserId == userId).Select(c => c.CellarId).ToListAsync();
+            return await context.Bottles.Where(b => userCellars.Contains(b.CellarId)).ToListAsync();
+        }
 
+        #endregion
+
+        #region -- POST --
         public async Task<Bottle> PostAsync(Bottle bottle)
         {
             context.Bottles.Add(bottle);
@@ -36,21 +45,18 @@ namespace Dal.Repositories
 
             return bottle;
         }
+        #endregion
 
-        public async Task<List<Bottle>> GetBottlesByUserIdAsync(int userId)
-        {
-            var userCellars = await context.Cellars.Where(c => c.User.UserId == userId).Select(c => c.CellarId).ToListAsync();
-            return await context.Bottles.Where(b => userCellars.Contains(b.CellarId)).ToListAsync();
-        }
-
-
+        #region -- UPDATE --
         public async Task<Bottle> UpdateAsync(Bottle bottle)
         {
             context.Bottles.Update(bottle);
             await context.SaveChangesAsync();
             return bottle;
         }
+        #endregion
 
+        #region -- REMOVE --
         public async Task<Bottle> RemoveAsync(int id)
         {
             var bottle = await context.Bottles.FindAsync(id);
@@ -61,6 +67,7 @@ namespace Dal.Repositories
             }
             return bottle;
         }
+        #endregion
 
     }
 }
