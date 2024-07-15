@@ -7,12 +7,14 @@ using DomainModel.DTO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MaCaveAVin.Controllers
 {
     [Route("[controller]")]
     [ApiController]
     [Produces("application/json")]
+    [Authorize]
     public class CellarController : ControllerBase
     {
         private readonly ICellarRepository _cellarRepository;

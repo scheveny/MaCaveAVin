@@ -1,4 +1,5 @@
 ﻿using DomainModel;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Dal
 {
-    public class CellarContext : IdentityDbContext<AppUser>
+    public class CellarContext : IdentityDbContext
     {
         public CellarContext(DbContextOptions<CellarContext> options) : base(options)
         {
