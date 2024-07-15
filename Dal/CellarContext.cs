@@ -1,4 +1,5 @@
 ﻿using DomainModel;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,8 +9,11 @@ using System.Threading.Tasks;
 
 namespace Dal
 {
-    public class CellarContext : DbContext
+    public class CellarContext : IdentityDbContext<AppUser>
     {
+        public CellarContext(DbContextOptions<CellarContext> options) : base(options)
+        {
+        }
         #region DbSets
         public DbSet<User> Users { get; set; }
         public DbSet<Bottle> Bottles { get; set; }
@@ -25,10 +29,6 @@ namespace Dal
         {
         }
 
-        public CellarContext(DbContextOptions options)
-            : base(options)
-        {
-        }
         #endregion
 
         #region Methods
