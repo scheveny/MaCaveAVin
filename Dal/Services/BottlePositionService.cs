@@ -1,11 +1,10 @@
 ﻿using DomainModel;
 using Dal;
 using System.Linq;
-using Dal.Interfaces;
 
 namespace Dal.Services
 {
-    public class PositionService : IPositionService
+    public class PositionService : IBottlePositionService
     {
         private readonly CellarContext context;
 

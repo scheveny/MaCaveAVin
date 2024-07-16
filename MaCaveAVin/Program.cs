@@ -24,7 +24,7 @@ namespace MaCaveAVin
 
             // Services
             builder.Services.AddScoped<IAgeValidationService, AgeValidationService>();
-            builder.Services.AddScoped<IPositionService, PositionService>();
+            builder.Services.AddScoped<IBottlePositionService, PositionService>();
             builder.Services.AddScoped<IPeakService, PeakService>();
 
             builder.Services.AddControllers().AddJsonOptions(options =>
