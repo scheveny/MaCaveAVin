@@ -1,14 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Dal.Interfaces;
+﻿using Microsoft.AspNetCore.Mvc;
 using DomainModel;
 using MaCaveAVin.Filters;
-using DomainModel.DTO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using DomainModel.DTO.cellar;
+using DomainModel.DTO.User;
 
 namespace MaCaveAVin.Controllers
 {
@@ -19,9 +15,9 @@ namespace MaCaveAVin.Controllers
     public class CellarController : ControllerBase
     {
         private readonly ICellarRepository _cellarRepository;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<AppUser> _userManager;
 
-        public CellarController(ICellarRepository cellarRepository, UserManager<IdentityUser> userManager) // Injection de dépendances
+        public CellarController(ICellarRepository cellarRepository, UserManager<AppUser> userManager) // Dependency injection
         {
             _cellarRepository = cellarRepository;
             _userManager = userManager;
@@ -32,26 +28,10 @@ namespace MaCaveAVin.Controllers
         [Produces(typeof(List<Cellar>))]
         public async Task<IActionResult> GetCellars()
         {
-            var cellars = await _cellarRepository.GetAllCellarsAsync();
+            var userId = _userManager.GetUserId(User);  // Get the currently authenticated user's ID
+
+            var cellars = await _cellarRepository.GetCellarsByUserIdAsync(userId);
             return Ok(cellars);
-        }
-
-        [HttpGet("{id}")]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(200)]
-        [Produces(typeof(Cellar))]
-        public async Task<IActionResult> GetCellarById([FromRoute] int id)
-        {
-            if (id <= 0)
-                return BadRequest();
-
-            var cellar = await _cellarRepository.GetCellarByIdAsync(id);
-
-            if (cellar == null)
-                return NotFound();
-
-            return Ok(cellar);
         }
 
         [HttpGet("cellarbyname")]
@@ -63,7 +43,8 @@ namespace MaCaveAVin.Controllers
             if (string.IsNullOrEmpty(name))
                 return BadRequest("Name parameter is required.");
 
-            var cellars = await _cellarRepository.SearchCellarsByNameAsync(name);
+            var userId = _userManager.GetUserId(User);  // Get the currently authenticated user's ID
+            var cellars = await _cellarRepository.SearchCellarsByNameAsync(userId, name);
 
             if (!cellars.Any())
                 return NotFound();
@@ -77,7 +58,8 @@ namespace MaCaveAVin.Controllers
         [Produces(typeof(List<Cellar>))]
         public async Task<IActionResult> GetAllCellarsByModel([FromRoute] int modelId)
         {
-            var cellars = await _cellarRepository.GetCellarsByModelAsync(modelId);
+            var userId = _userManager.GetUserId(User);  // Get the currently authenticated user's ID
+            var cellars = await _cellarRepository.GetCellarsByModelAsync(userId, modelId);
 
             if (cellars == null || !cellars.Any())
                 return NotFound();
@@ -91,7 +73,8 @@ namespace MaCaveAVin.Controllers
         [Produces(typeof(List<Cellar>))]
         public async Task<IActionResult> GetAllCellarsByCategory([FromRoute] int categoryId)
         {
-            var cellars = await _cellarRepository.GetCellarsByCategoryAsync(categoryId);
+            var userId = _userManager.GetUserId(User);  // Get the currently authenticated user's ID
+            var cellars = await _cellarRepository.GetCellarsByCategoryAsync(userId, categoryId);
 
             if (cellars == null || !cellars.Any())
                 return NotFound();
@@ -114,9 +97,18 @@ namespace MaCaveAVin.Controllers
             if (cellarDto.NbStackRow <= 0)
                 return BadRequest("The number of stacks per row (NbStackRow) must be greater than 0.");
 
-            var user = await _userManager.FindByIdAsync(_userManager.GetUserId(User));
+            var userId = _userManager.GetUserId(User);  // Get the currently authenticated user's ID
+            var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 return BadRequest("Invalid UserId.");
+
+            var cellarCategory = await _cellarRepository.GetCellarCategoryByIdAsync(cellarDto.CellarCategoryId);
+            if (cellarCategory == null)
+                return BadRequest("Invalid CellarCategoryId.");
+
+            var cellarModel = await _cellarRepository.GetCellarModelByIdAsync(cellarDto.CellarModelId);
+            if (cellarModel == null)
+                return BadRequest("Invalid CellarModelId.");
 
             var cellar = new Cellar
             {
@@ -150,17 +142,35 @@ namespace MaCaveAVin.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
-        public async Task<IActionResult> UpdateCellar([FromRoute] int id, [FromBody] Cellar cellar)
+        public async Task<IActionResult> UpdateCellar([FromRoute] int id, [FromBody] UpdateCellarDto updateCellarDto)
         {
-            if (id <= 0 || id != cellar.CellarId)
+            if (id <= 0)
                 return BadRequest();
 
-            // Vérifie si le modèle est valide
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            // Retrieve the existing cellar
+            var userId = _userManager.GetUserId(User);  // Get the currently authenticated user's ID
+            var existingCellar = await _cellarRepository.GetCellarByIdAsync(id);
+            if (existingCellar == null || existingCellar.UserId != userId)
+                return NotFound();
 
-            // mise à jour
-            await _cellarRepository.UpdateCellarAsync(cellar);
+            // Update the properties
+            existingCellar.CellarName = updateCellarDto.CellarName;
+            existingCellar.NbRow = updateCellarDto.NbRow;
+            existingCellar.NbStackRow = updateCellarDto.NbStackRow;
+            existingCellar.CellarCategoryId = updateCellarDto.CellarCategoryId;
+            existingCellar.CellarModelId = updateCellarDto.CellarModelId;
+
+            // Verify if the provided CellarCategoryId and CellarModelId are valid
+            var cellarCategory = await _cellarRepository.GetCellarCategoryByIdAsync(updateCellarDto.CellarCategoryId);
+            if (cellarCategory == null)
+                return BadRequest("Invalid CellarCategoryId.");
+
+            var cellarModel = await _cellarRepository.GetCellarModelByIdAsync(updateCellarDto.CellarModelId);
+            if (cellarModel == null)
+                return BadRequest("Invalid CellarModelId.");
+
+            // Save the changes
+            await _cellarRepository.UpdateCellarAsync(existingCellar);
 
             return NoContent();
         }
@@ -175,9 +185,10 @@ namespace MaCaveAVin.Controllers
             if (id <= 0)
                 return BadRequest();
 
+            var userId = _userManager.GetUserId(User);  // Get the currently authenticated user's ID
             var cellar = await _cellarRepository.GetCellarByIdAsync(id);
 
-            if (cellar == null)
+            if (cellar == null || cellar.UserId != userId)
                 return NotFound();
 
             await _cellarRepository.RemoveCellarAsync(cellar);
@@ -190,7 +201,6 @@ namespace MaCaveAVin.Controllers
         public IActionResult CustomError()
         {
             throw new NotImplementedException("Méthode non implementé");
-            return Ok();
         }
     }
 }

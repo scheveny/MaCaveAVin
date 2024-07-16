@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DomainModel.DTO
+namespace DomainModel.DTO.cellar
 {
     public class CreateCellarDto
     {
@@ -16,7 +13,7 @@ namespace DomainModel.DTO
         public int NbRow { get; set; }
         [Required]
         public int NbStackRow { get; set; }
-        public int? CellarCategoryId { get; set; }
-        public int? CellarModelId { get; set; }
+        public int CellarCategoryId { get; set; }
+        public int CellarModelId { get; set; }
     }
 }

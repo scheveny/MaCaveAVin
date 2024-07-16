@@ -1,10 +1,5 @@
 ﻿using DomainModel;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dal.Repositories
 {
@@ -27,21 +22,32 @@ namespace Dal.Repositories
             return await _context.Cellars.FindAsync(id);
         }
 
-        public async Task<List<Cellar>> SearchCellarsByNameAsync(string name)
+        public async Task<List<Cellar>> SearchCellarsByNameAsync(string userId, string name)
         {
             return await _context.Cellars
-                .Where(c => c.CellarName.Contains(name))
+                .Where(c => c.UserId == userId && c.CellarName.Contains(name))
                 .ToListAsync();
         }
 
-        public async Task<List<Cellar>> GetCellarsByModelAsync(int modelId)
+        public async Task<List<Cellar>> GetCellarsByModelAsync(string userId, int modelId)
         {
-            return await _context.Cellars.Where(c => c.CellarModelId == modelId).ToListAsync();
+            return await _context.Cellars
+                .Where(c => c.UserId == userId && c.CellarModelId == modelId)
+                .ToListAsync();
         }
 
-        public async Task<List<Cellar>> GetCellarsByCategoryAsync(int categoryId)
+        public async Task<List<Cellar>> GetCellarsByCategoryAsync(string userId, int categoryId)
         {
-            return await _context.Cellars.Where(c => c.CellarCategoryId == categoryId).ToListAsync();
+            return await _context.Cellars
+                .Where(c => c.UserId == userId && c.CellarCategoryId == categoryId)
+                .ToListAsync();
+        }
+
+        public async Task<List<Cellar>> GetCellarsByUserIdAsync(string userId)
+        {
+            return await _context.Cellars
+                .Where(c => c.UserId == userId)
+                .ToListAsync();
         }
 
         public async Task AddCellarAsync(Cellar cellar)
@@ -61,5 +67,16 @@ namespace Dal.Repositories
             _context.Cellars.Remove(cellar);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<CellarCategory> GetCellarCategoryByIdAsync(int categoryId)
+        {
+            return await _context.CellarCategories.FindAsync(categoryId);
+        }
+
+        public async Task<CellarModel> GetCellarModelByIdAsync(int modelId)
+        {
+            return await _context.CellarModels.FindAsync(modelId);
+        }
     }
+
 }
