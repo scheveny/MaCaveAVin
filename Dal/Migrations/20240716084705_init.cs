@@ -30,6 +30,12 @@ namespace Dal.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Birthday = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: true),
+                    Telephone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -75,25 +81,6 @@ namespace Dal.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CellarModel", x => x.CellarModelId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "User",
-                columns: table => new
-                {
-                    UserId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Birthday = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: true),
-                    Telephone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User", x => x.UserId);
                 });
 
             migrationBuilder.CreateTable(
@@ -211,13 +198,18 @@ namespace Dal.Migrations
                     CellarName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     NbRow = table.Column<int>(type: "int", nullable: false),
                     NbStackRow = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CellarCategoryId = table.Column<int>(type: "int", nullable: true),
                     CellarModelId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Cellar", x => x.CellarId);
+                    table.ForeignKey(
+                        name: "FK_Cellar_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Cellar_CellarCategory_CellarCategoryId",
                         column: x => x.CellarCategoryId,
@@ -228,12 +220,6 @@ namespace Dal.Migrations
                         column: x => x.CellarModelId,
                         principalTable: "CellarModel",
                         principalColumn: "CellarModelId");
-                    table.ForeignKey(
-                        name: "FK_Cellar_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -349,19 +335,16 @@ namespace Dal.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Cellar");
 
             migrationBuilder.DropTable(
-                name: "Cellar");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "CellarCategory");
 
             migrationBuilder.DropTable(
                 name: "CellarModel");
-
-            migrationBuilder.DropTable(
-                name: "User");
         }
     }
 }

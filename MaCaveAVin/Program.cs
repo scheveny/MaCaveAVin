@@ -21,7 +21,6 @@ namespace MaCaveAVin
             var builder = WebApplication.CreateBuilder(args);
 
             // Repositories
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ICellarRepository, CellarRepository>();
             builder.Services.AddScoped<ICellarCategoryRepository, CellarCategoryRepository>();
             builder.Services.AddScoped<ICellarModelRepository, CellarModelRepository>();
@@ -41,8 +40,9 @@ namespace MaCaveAVin
 
             builder.Services.AddAuthorization();
 
-            builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+            builder.Services.AddIdentityApiEndpoints<AppUser>(c => { c.Password.RequiredLength = 6; })
                 .AddEntityFrameworkStores<CellarContext>();
+              //  .AddRoles<IdentityRole>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -72,7 +72,6 @@ namespace MaCaveAVin
                 app.UseHsts();
             }
 
-            app.MapIdentityApi<IdentityUser>();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -81,6 +80,7 @@ namespace MaCaveAVin
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.MapIdentityApi<AppUser>();
 
             app.MapControllers(); // This line maps controller actions as endpoints.
 

@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace Dal
 {
-    public class CellarContext : IdentityDbContext
+    public class CellarContext : IdentityDbContext<AppUser>
     {
         public CellarContext(DbContextOptions<CellarContext> options) : base(options)
         {
         }
         #region DbSets
-        public DbSet<User> Users { get; set; }
+        //public DbSet<User> Users { get; set; }
         public DbSet<Bottle> Bottles { get; set; }
         public DbSet<Cellar> Cellars { get; set; }
         public DbSet<CellarCategory> CellarCategories { get; set; }
