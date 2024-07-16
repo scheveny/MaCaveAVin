@@ -1,12 +1,8 @@
 ﻿using Dal;
 using DomainModel;
-using MaCaveAVin.Filters;
 using Dal.Interfaces;
-using Dal.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace MaCaveAVin.Controllers
 {
@@ -14,22 +10,24 @@ namespace MaCaveAVin.Controllers
     [ApiController]
     public class BottleController : ControllerBase
     {
-        private readonly CellarContext context;
-        private readonly IPositionService positionService;
+        private readonly CellarContext _context;
+        private readonly IPositionService _positionService;
         private readonly IPeakService _peakService;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public BottleController(CellarContext context, IPositionService positionService, IPeakService bottleService) // Dependency injection
+        public BottleController(CellarContext context, IPositionService positionService, IPeakService bottleService, UserManager<IdentityUser> userManager) // Dependency injection
         {
-            this.context = context;
-            this.positionService = positionService;
-            this._peakService = bottleService;
+            _context = context;
+            _positionService = positionService;
+            _peakService = bottleService;
+            _userManager = userManager;
         }
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<Bottle>> GetBottles()
         {
-            var bottles = context.Bottles.ToList();
+            var bottles = _context.Bottles.ToList();
             return Ok(bottles);
         }
 
@@ -42,7 +40,7 @@ namespace MaCaveAVin.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var bottle = context.Bottles.Find(id);
+            var bottle = _context.Bottles.Find(id);
 
             if (bottle == null)
                 return NotFound();
@@ -59,7 +57,7 @@ namespace MaCaveAVin.Controllers
             if (cellarId <= 0)
                 return BadRequest();
 
-            var bottles = context.Bottles.Where(b => b.CellarId == cellarId).ToList();
+            var bottles = _context.Bottles.Where(b => b.CellarId == cellarId).ToList();
 
             if (!bottles.Any())
                 return NotFound();
@@ -72,23 +70,25 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<Bottle>> GetAllUserBottles(int userId)
+        public async Task<ActionResult<IEnumerable<Bottle>>> GetAllUserBottles(string userId)
         {
-            if (userId <= 0)
+            if (string.IsNullOrEmpty(userId))
                 return BadRequest();
 
-            var userCellars = context.Cellars.Where(c => c.User.UserId == userId).Select(c => c.CellarId).ToList();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound();
+
+            var userCellars = _context.Cellars.Where(c => c.User.Id == userId).Select(c => c.CellarId).ToList();
             if (!userCellars.Any())
                 return NotFound();
 
-            var bottles = context.Bottles.Where(b => userCellars.Contains(b.CellarId)).ToList();
+            var bottles = _context.Bottles.Where(b => userCellars.Contains(b.CellarId)).ToList();
             if (!bottles.Any())
                 return NotFound();
 
             return Ok(bottles);
         }
-
-
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -101,15 +101,15 @@ namespace MaCaveAVin.Controllers
                 return BadRequest(ModelState);
 
             // Find the first available position using the position service
-            var position = positionService.FindFirstAvailablePosition(bottle.CellarId);
+            var position = _positionService.FindFirstAvailablePosition(bottle.CellarId);
             if (position == null)
                 return BadRequest("No available position found.");
 
             bottle.DrawerNb = position.Value.Item1;
             bottle.StackInDrawerNb = position.Value.Item2;
 
-            context.Bottles.Add(bottle);
-            context.SaveChanges();
+            _context.Bottles.Add(bottle);
+            _context.SaveChanges();
 
             return CreatedAtAction(nameof(GetBottle), new { id = bottle.BottleId }, bottle);
         }
@@ -125,8 +125,8 @@ namespace MaCaveAVin.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            context.Bottles.Update(bottle);
-            context.SaveChanges();
+            _context.Bottles.Update(bottle);
+            _context.SaveChanges();
 
             return NoContent();
         }
@@ -140,22 +140,15 @@ namespace MaCaveAVin.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var bottle = context.Bottles.Find(id);
+            var bottle = _context.Bottles.Find(id);
 
             if (bottle == null)
                 return NotFound();
 
-            context.Bottles.Remove(bottle);
-            context.SaveChanges();
+            _context.Bottles.Remove(bottle);
+            _context.SaveChanges();
 
             return Ok(bottle);
-        }
-
-        [CustomExceptionFilter]
-        [HttpGet("customerror")]
-        public IActionResult CustomError()
-        {
-            throw new NotImplementedException("Method not implemented");
         }
     }
 }

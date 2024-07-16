@@ -23,6 +23,7 @@ namespace DomainModel
         public int NbStackRow { get; set; }
 
         public AppUser User { get; set; }
+        public string UserId { get; set; }
         public ICollection<Bottle> Bottles { get; set; }
 
         public int? CellarCategoryId { get; set; }

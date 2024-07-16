@@ -93,13 +93,5 @@ namespace MaCaveAVin.Controllers
 
             return Ok(model);
         }
-
-        [CustomExceptionFilter]
-        [HttpGet("customerror")]
-        public IActionResult CustomError()
-        {
-            throw new NotImplementedException("Méthode non implementé");
-            return Ok();
-        }
     }
 }

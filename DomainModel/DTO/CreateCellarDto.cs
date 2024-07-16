@@ -16,8 +16,6 @@ namespace DomainModel.DTO
         public int NbRow { get; set; }
         [Required]
         public int NbStackRow { get; set; }
-        [Required]
-        public int UserId { get; set; }
         public int? CellarCategoryId { get; set; }
         public int? CellarModelId { get; set; }
     }
