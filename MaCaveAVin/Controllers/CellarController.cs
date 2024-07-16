@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using DomainModel;
-using MaCaveAVin.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using DomainModel.DTO.cellar;
@@ -194,13 +193,6 @@ namespace MaCaveAVin.Controllers
             await _cellarRepository.RemoveCellarAsync(cellar);
 
             return Ok(cellar);
-        }
-
-        [CustomExceptionFilter]
-        [HttpGet("customerror")]
-        public IActionResult CustomError()
-        {
-            throw new NotImplementedException("Méthode non implementé");
         }
     }
 }

@@ -12,7 +12,7 @@ namespace DomainModel
     {
         public int CellarCategoryId { get; set; }
         public string CategoryName { get; set; }
-
+        public string UserId { get; set; } // Foreign key to AppUser
         public ICollection<Cellar> Cellars { get; set; }
     }
 }

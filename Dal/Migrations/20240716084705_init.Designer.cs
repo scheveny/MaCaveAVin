@@ -13,7 +13,7 @@ namespace Dal.Migrations
 {
     [DbContext(typeof(CellarContext))]
     [Migration("20240716084705_init")]
-    partial class init
+    partial class initial_build
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

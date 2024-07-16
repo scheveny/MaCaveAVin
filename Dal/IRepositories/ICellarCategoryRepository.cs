@@ -1,18 +1,12 @@
 ﻿using DomainModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Dal.IRepositories
+public interface ICellarCategoryRepository
 {
-    public interface ICellarCategoryRepository
-    {
-        Task<List<CellarCategory>> GetAllCellarCategoriesAsync();
-        Task<CellarCategory> GetCellarCategoryByIdAsync(int id);
-        Task AddCellarCategoryAsync(CellarCategory cellarCategory);
-        Task UpdateCellarCategoryAsync(CellarCategory cellarCategory);
-        Task RemoveCellarCategoryAsync(CellarCategory cellarCategory);
-    }
+    Task<List<CellarCategory>> GetAllCellarCategoriesAsync();
+    Task<CellarCategory> GetCellarCategoryByIdAsync(int id);
+    Task AddCellarCategoryAsync(CellarCategory cellarCategory);
+    Task UpdateCellarCategoryAsync(CellarCategory cellarCategory);
+    Task RemoveCellarCategoryAsync(CellarCategory cellarCategory);
+    Task<List<CellarCategory>> GetCellarCategoriesByUserIdAsync(string userId);
+    Task<CellarCategory> GetCellarCategoryByIdAndUserIdAsync(int id, string userId);
 }
