@@ -1,24 +1,23 @@
-﻿using Dal.Interfaces;
-using Dal.IRepositories;
+﻿using Dal.IRepositories;
 using DomainModel;
-using MaCaveAVin.Filters;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace MaCaveAVin.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class CellarCategoryController : ControllerBase
     {
         private readonly ICellarCategoryRepository _cellarCategoryRepository;
+        private readonly UserManager<AppUser> _userManager;
 
-        public CellarCategoryController(ICellarCategoryRepository cellarCategoryRepository) // Injection de dépendances
+        public CellarCategoryController(ICellarCategoryRepository cellarCategoryRepository, UserManager<AppUser> userManager) // Dependency injection
         {
             _cellarCategoryRepository = cellarCategoryRepository;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -26,7 +25,8 @@ namespace MaCaveAVin.Controllers
         [Produces(typeof(List<CellarCategory>))]
         public async Task<IActionResult> GetCellarCategories()
         {
-            var categories = await _cellarCategoryRepository.GetAllCellarCategoriesAsync();
+            var userId = _userManager.GetUserId(User); // Get the currently authenticated user's ID
+            var categories = await _cellarCategoryRepository.GetCellarCategoriesByUserIdAsync(userId);
             return Ok(categories);
         }
 
@@ -40,7 +40,8 @@ namespace MaCaveAVin.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var category = await _cellarCategoryRepository.GetCellarCategoryByIdAsync(id);
+            var userId = _userManager.GetUserId(User); // Get the currently authenticated user's ID
+            var category = await _cellarCategoryRepository.GetCellarCategoryByIdAndUserIdAsync(id, userId);
 
             if (category == null)
                 return NotFound();
@@ -56,6 +57,9 @@ namespace MaCaveAVin.Controllers
             if (cellarCategory == null)
                 return BadRequest();
 
+            var userId = _userManager.GetUserId(User); // Get the currently authenticated user's ID
+            cellarCategory.UserId = userId; // Assign the current user's ID to the cellarCategory
+
             await _cellarCategoryRepository.AddCellarCategoryAsync(cellarCategory);
 
             return Created($"cellar/{cellarCategory.CellarCategoryId}", cellarCategory);
@@ -69,7 +73,19 @@ namespace MaCaveAVin.Controllers
             if (id <= 0 || id != cellarCategory.CellarCategoryId)
                 return BadRequest();
 
-            await _cellarCategoryRepository.UpdateCellarCategoryAsync(cellarCategory);
+            var userId = _userManager.GetUserId(User); // Get the currently authenticated user's ID
+
+            var existingCategory = await _cellarCategoryRepository.GetCellarCategoryByIdAndUserIdAsync(id, userId);
+            if (existingCategory == null)
+                return NotFound();
+
+            // Ensure the updated category belongs to the current user
+            if (existingCategory.UserId != userId)
+                return Forbid();
+
+            existingCategory.CategoryName = cellarCategory.CategoryName;
+
+            await _cellarCategoryRepository.UpdateCellarCategoryAsync(existingCategory);
 
             return NoContent();
         }
@@ -78,13 +94,14 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(200)]
-        [Produces(typeof(Cellar))]
+        [Produces(typeof(CellarCategory))]
         public async Task<IActionResult> RemoveCellarCategory([FromRoute] int id)
         {
             if (id <= 0)
                 return BadRequest();
 
-            var category = await _cellarCategoryRepository.GetCellarCategoryByIdAsync(id);
+            var userId = _userManager.GetUserId(User); // Get the currently authenticated user's ID
+            var category = await _cellarCategoryRepository.GetCellarCategoryByIdAndUserIdAsync(id, userId);
 
             if (category == null)
                 return NotFound();
@@ -92,14 +109,6 @@ namespace MaCaveAVin.Controllers
             await _cellarCategoryRepository.RemoveCellarCategoryAsync(category);
 
             return Ok(category);
-        }
-
-        [CustomExceptionFilter]
-        [HttpGet("customerror")]
-        public IActionResult CustomError()
-        {
-            throw new NotImplementedException("Méthode non implementé");
-            return Ok();
         }
     }
 }
