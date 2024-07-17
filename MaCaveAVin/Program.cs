@@ -1,5 +1,5 @@
 using Dal;
-using Dal.Interfaces;
+using Dal.IServices;
 using Dal.IRepositories;
 using Dal.Repositories;
 using Dal.Services;

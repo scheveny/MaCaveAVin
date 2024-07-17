@@ -1,4 +1,4 @@
-﻿using Dal.Interfaces;
+﻿using Dal.IServices;
 using Dal.IRepositories;
 using DomainModel;
 using MaCaveAVin.Filters;
