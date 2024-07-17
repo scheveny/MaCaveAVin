@@ -1,6 +1,5 @@
-﻿using Dal.IRepositories;
+﻿
 using DomainModel;
-using DomainModel.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
