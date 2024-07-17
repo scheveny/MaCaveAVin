@@ -6,12 +6,16 @@ using Dal.Services;
 using Microsoft.AspNetCore.Mvc;
 using DomainModel.DTOs.Bottle;
 using Microsoft.AspNetCore.Identity;
-
+using Microsoft.AspNetCore.Authorization;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MaCaveAVin.Controllers
 {
     [Route("[controller]/[Action]")]
     [ApiController]
+    [Authorize]
     public class BottleController : ControllerBase
     {
         private readonly CellarContext context;
@@ -34,7 +38,7 @@ namespace MaCaveAVin.Controllers
         #endregion
 
         #region -- GET --
-        
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<BottleDto>>> GetBottles()
@@ -103,15 +107,15 @@ namespace MaCaveAVin.Controllers
         }
 
 
-        // GetAllUserBottles without DTO
+        // GetAllUserBottles with DTO
         [HttpGet("user/{userId}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<BottleDto>>> GetAllUserBottles(string userId)
         {
-            //if (userId = null)
-            //    return BadRequest();
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest();
 
             var bottles = await bottleRepository.GetBottlesByUserIdAsync(userId);
 
@@ -129,17 +133,28 @@ namespace MaCaveAVin.Controllers
         #endregion
 
         #region -- POST --
-       
+
         // AddBottle with DTO
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<CreateBottleDto>> AddBottle([FromBody] Bottle bottle)
+        public async Task<ActionResult<BottleDto>> AddBottle([FromBody] CreateBottleDto createBottleDto)
         {
-            peakService.CalculateIdealPeak(bottle);
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            var bottle = new Bottle
+            {
+                BottleName = createBottleDto.BottleName,
+                BottleYear = createBottleDto.BottleYear,
+                WineColor = createBottleDto.WineColor,
+                Appellation = createBottleDto.Appellation,
+                PeakStart = createBottleDto.PeakStart,
+                PeakEnd = createBottleDto.PeakEnd,
+                CellarId = createBottleDto.CellarId
+            };
+
+            peakService.CalculateIdealPeak(bottle);
 
             // Find the first available position using the position service
             var position = positionService.FindFirstAvailablePosition(bottle.CellarId);
@@ -153,13 +168,12 @@ namespace MaCaveAVin.Controllers
 
             var bottleDto = new BottleDto
             {
-                //BottleId = newBottle.BottleId,
+                BottleId = newBottle.BottleId,
                 BottleName = newBottle.BottleName
             };
 
             return CreatedAtAction(nameof(GetBottle), new { id = newBottle.BottleId }, bottleDto);
         }
-
 
         // UpdateBottle with DTO
         [HttpPut("{id}")]
@@ -173,14 +187,14 @@ namespace MaCaveAVin.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var updatedBottle = await bottleRepository.UpdateAsync(bottle);
+            await bottleRepository.UpdateAsync(bottle);
 
             return NoContent();
         }
         #endregion
 
         #region -- DELETE --
-        
+
         // RemoveBottle with DTO
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

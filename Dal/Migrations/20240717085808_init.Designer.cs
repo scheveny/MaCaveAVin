@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Dal.Migrations
 {
     [DbContext(typeof(CellarContext))]
-    [Migration("20240716084705_init")]
-    partial class initial_build
+    [Migration("20240717085808_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -91,9 +91,6 @@ namespace Dal.Migrations
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
@@ -189,6 +186,7 @@ namespace Dal.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("CellarId");
@@ -214,7 +212,13 @@ namespace Dal.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("CellarCategoryId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("CellarCategory");
                 });
@@ -234,7 +238,13 @@ namespace Dal.Migrations
                     b.Property<int>("CellarTemperature")
                         .HasColumnType("int");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("CellarModelId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("CellarModel");
                 });
@@ -395,11 +405,35 @@ namespace Dal.Migrations
 
                     b.HasOne("DomainModel.AppUser", "User")
                         .WithMany("Cellars")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("CellarCategory");
 
                     b.Navigation("CellarModel");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DomainModel.CellarCategory", b =>
+                {
+                    b.HasOne("DomainModel.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DomainModel.CellarModel", b =>
+                {
+                    b.HasOne("DomainModel.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

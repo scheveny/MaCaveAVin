@@ -4,11 +4,11 @@ using System.Linq;
 
 namespace Dal.Services
 {
-    public class PositionService : IBottlePositionService
+    public class BottlePositionService : IBottlePositionService
     {
         private readonly CellarContext context;
 
-        public PositionService(CellarContext context)
+        public BottlePositionService(CellarContext context)
         {
             this.context = context;
         }

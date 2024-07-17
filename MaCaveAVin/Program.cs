@@ -1,5 +1,4 @@
 using Dal;
-using Dal.Interfaces;
 using Dal.IRepositories;
 using Dal.Repositories;
 using Dal.Services;
@@ -7,7 +6,6 @@ using DomainModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
-using System.Text;
 
 namespace MaCaveAVin
 {
@@ -21,10 +19,11 @@ namespace MaCaveAVin
             builder.Services.AddScoped<ICellarRepository, CellarRepository>();
             builder.Services.AddScoped<ICellarCategoryRepository, CellarCategoryRepository>();
             builder.Services.AddScoped<ICellarModelRepository, CellarModelRepository>();
+            builder.Services.AddScoped<IBottleRepository, BottleRepository>();
 
             // Services
             builder.Services.AddScoped<IAgeValidationService, AgeValidationService>();
-            builder.Services.AddScoped<IBottlePositionService, PositionService>();
+            builder.Services.AddScoped<IBottlePositionService, BottlePositionService>();
             builder.Services.AddScoped<IPeakService, PeakService>();
 
             builder.Services.AddControllers().AddJsonOptions(options =>

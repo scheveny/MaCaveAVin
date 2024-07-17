@@ -12,6 +12,8 @@
 
   <ItemGroup>
     <Folder Include="DTO\bottle\" />
+    <Folder Include="DTO\cellarModel\" />
+    <Folder Include="DTO\cellarCategory\" />
   </ItemGroup>
 
 </Project>

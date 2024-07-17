@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using DomainModel.DTO.cellar;
 using DomainModel.DTO.User;
+using MaCaveAVin.Filters;
 
 namespace MaCaveAVin.Controllers
 {
@@ -28,9 +29,27 @@ namespace MaCaveAVin.Controllers
         public async Task<IActionResult> GetCellars()
         {
             var userId = _userManager.GetUserId(User);  // Get the currently authenticated user's ID
-
             var cellars = await _cellarRepository.GetCellarsByUserIdAsync(userId);
             return Ok(cellars);
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200)]
+        [Produces(typeof(Cellar))]
+        public async Task<IActionResult> GetCellarById([FromRoute] int id)
+        {
+            if (id <= 0)
+                return BadRequest();
+
+            var userId = _userManager.GetUserId(User);  // Get the currently authenticated user's ID
+            var cellar = await _cellarRepository.GetCellarByIdAsync(id);
+
+            if (cellar == null || cellar.UserId != userId)
+                return NotFound();
+
+            return Ok(cellar);
         }
 
         [HttpGet("cellarbyname")]
@@ -193,6 +212,13 @@ namespace MaCaveAVin.Controllers
             await _cellarRepository.RemoveCellarAsync(cellar);
 
             return Ok(cellar);
+        }
+
+        [CustomExceptionFilter]
+        [HttpGet("customerror")]
+        public IActionResult CustomError()
+        {
+            throw new NotImplementedException("Méthode non implementé");
         }
     }
 }

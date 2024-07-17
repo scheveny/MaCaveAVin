@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using DomainModel;
-using Dal.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Dal.IRepositories;
 
