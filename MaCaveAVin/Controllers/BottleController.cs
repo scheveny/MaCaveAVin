@@ -13,9 +13,9 @@ namespace MaCaveAVin.Controllers
         private readonly CellarContext _context;
         private readonly IPositionService _positionService;
         private readonly IPeakService _peakService;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<AppUser> _userManager;
 
-        public BottleController(CellarContext context, IPositionService positionService, IPeakService bottleService, UserManager<IdentityUser> userManager) // Dependency injection
+        public BottleController(CellarContext context, IPositionService positionService, IPeakService bottleService, UserManager<AppUser> userManager) // Dependency injection
         {
             _context = context;
             _positionService = positionService;
