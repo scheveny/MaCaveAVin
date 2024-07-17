@@ -7,9 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using DomainModel.DTOs.Bottle;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MaCaveAVin.Controllers
 {
@@ -118,6 +115,31 @@ namespace MaCaveAVin.Controllers
                 return BadRequest();
 
             var bottles = await bottleRepository.GetBottlesByUserIdAsync(userId);
+
+            if (!bottles.Any())
+                return NotFound();
+
+            var bottleDtos = bottles.Select(b => new BottleDto
+            {
+                BottleId = b.BottleId,
+                BottleName = b.BottleName
+            }).ToList();
+
+            return Ok(bottleDtos);
+        }
+
+        [HttpGet("ReadyToDrink")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<BottleDto>>> GetBottlesReadyToDrink()
+        {
+            var today = DateTime.Today;
+            var sixMonthsFromNow = today.AddMonths(6);
+
+            int currentYear = today.Year;
+            int sixMonthsYear = sixMonthsFromNow.Year;
+
+            var bottles = await bottleRepository.GetBottlesReadyToDrinkAsync(currentYear, sixMonthsYear);
 
             if (!bottles.Any())
                 return NotFound();

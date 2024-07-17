@@ -13,6 +13,7 @@ namespace Dal.IRepositories
         Task<Bottle> GetByIdAsync(int id);
         Task<List<Bottle>> GetBottlesByCellarIdAsync(int cellarId);
         Task<List<Bottle>> GetBottlesByUserIdAsync(string userId);
+        Task<IEnumerable<Bottle>> GetBottlesReadyToDrinkAsync(int currentYear, int sixMonthsYear);
         Task<Bottle> PostAsync(Bottle bottle);
         Task<Bottle> UpdateAsync(Bottle bottle);
         Task<Bottle> RemoveAsync(int id);

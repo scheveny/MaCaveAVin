@@ -34,6 +34,12 @@ namespace Dal.Repositories
             var userCellars = await context.Cellars.Where(c => c.User.Id == userId).Select(c => c.CellarId).ToListAsync();
             return await context.Bottles.Where(b => userCellars.Contains(b.CellarId)).ToListAsync();
         }
+        public async Task<IEnumerable<Bottle>> GetBottlesReadyToDrinkAsync(int currentYear, int sixMonthsYear)
+        {
+            return await context.Bottles
+                .Where(b => b.PeakStart <= sixMonthsYear && b.PeakEnd >= currentYear)
+                .ToListAsync();
+        }
 
         #endregion
 
