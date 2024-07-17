@@ -11,14 +11,17 @@ public class CellarCategoryRepository : ICellarCategoryRepository
         _context = context;
     }
 
-    public async Task<List<CellarCategory>> GetAllCellarCategoriesAsync()
+    public async Task<List<CellarCategory>> GetCellarCategoriesByUserIdAsync(string userId)
     {
-        return await _context.CellarCategories.ToListAsync();
+        return await _context.CellarCategories
+            .Where(cc => cc.UserId == userId)
+            .ToListAsync();
     }
 
-    public async Task<CellarCategory> GetCellarCategoryByIdAsync(int id)
+    public async Task<CellarCategory> GetCellarCategoryByIdAndUserIdAsync(int id, string userId)
     {
-        return await _context.CellarCategories.FindAsync(id);
+        return await _context.CellarCategories
+            .FirstOrDefaultAsync(cc => cc.CellarCategoryId == id && cc.UserId == userId);
     }
 
     public async Task AddCellarCategoryAsync(CellarCategory cellarCategory)
@@ -37,18 +40,5 @@ public class CellarCategoryRepository : ICellarCategoryRepository
     {
         _context.CellarCategories.Remove(cellarCategory);
         await _context.SaveChangesAsync();
-    }
-
-    public async Task<List<CellarCategory>> GetCellarCategoriesByUserIdAsync(string userId)
-    {
-        return await _context.CellarCategories
-            .Where(cc => cc.UserId == userId)
-            .ToListAsync();
-    }
-
-    public async Task<CellarCategory> GetCellarCategoryByIdAndUserIdAsync(int id, string userId)
-    {
-        return await _context.CellarCategories
-            .FirstOrDefaultAsync(cc => cc.CellarCategoryId == id && cc.UserId == userId);
     }
 }

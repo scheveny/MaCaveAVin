@@ -1,8 +1,10 @@
 ﻿using Dal.IRepositories;
 using DomainModel;
+using DomainModel.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using DomainModel.DTO;
 
 namespace MaCaveAVin.Controllers
 {
@@ -22,19 +24,26 @@ namespace MaCaveAVin.Controllers
 
         [HttpGet]
         [ProducesResponseType(200)]
-        [Produces(typeof(List<CellarCategory>))]
+        [Produces(typeof(List<CellarCategoryDto>))]
         public async Task<IActionResult> GetCellarCategories()
         {
             var userId = _userManager.GetUserId(User); // Get the currently authenticated user's ID
             var categories = await _cellarCategoryRepository.GetCellarCategoriesByUserIdAsync(userId);
-            return Ok(categories);
+
+            var categoryDtos = categories.Select(c => new CellarCategoryDto
+            {
+                CellarCategoryId = c.CellarCategoryId,
+                CategoryName = c.CategoryName
+            }).ToList();
+
+            return Ok(categoryDtos);
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(200)]
-        [Produces(typeof(CellarCategory))]
+        [Produces(typeof(CellarCategoryDto))]
         public async Task<IActionResult> GetCellarCategory([FromRoute] int id)
         {
             if (id <= 0)
@@ -46,31 +55,48 @@ namespace MaCaveAVin.Controllers
             if (category == null)
                 return NotFound();
 
-            return Ok(category);
+            var categoryDto = new CellarCategoryDto
+            {
+                CellarCategoryId = category.CellarCategoryId,
+                CategoryName = category.CategoryName
+            };
+
+            return Ok(categoryDto);
         }
 
         [HttpPost]
         [ProducesResponseType(201)]
-        [Produces(typeof(CellarCategory))]
-        public async Task<IActionResult> AddCellarCategory([FromBody] CellarCategory cellarCategory)
+        [Produces(typeof(CellarCategoryDto))]
+        public async Task<IActionResult> AddCellarCategory([FromBody] CreateCellarCategoryDto createCellarCategoryDto)
         {
-            if (cellarCategory == null)
+            if (createCellarCategoryDto == null)
                 return BadRequest();
 
             var userId = _userManager.GetUserId(User); // Get the currently authenticated user's ID
-            cellarCategory.UserId = userId; // Assign the current user's ID to the cellarCategory
+
+            var cellarCategory = new CellarCategory
+            {
+                CategoryName = createCellarCategoryDto.CategoryName,
+                UserId = userId
+            };
 
             await _cellarCategoryRepository.AddCellarCategoryAsync(cellarCategory);
 
-            return Created($"cellar/{cellarCategory.CellarCategoryId}", cellarCategory);
+            var categoryDto = new CellarCategoryDto
+            {
+                CellarCategoryId = cellarCategory.CellarCategoryId,
+                CategoryName = cellarCategory.CategoryName
+            };
+
+            return Created($"cellar/{categoryDto.CellarCategoryId}", categoryDto);
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
-        public async Task<IActionResult> UpdateCellarCategory([FromRoute] int id, [FromBody] CellarCategory cellarCategory)
+        public async Task<IActionResult> UpdateCellarCategory([FromRoute] int id, [FromBody] UpdateCellarCategoryDto updateCellarCategoryDto)
         {
-            if (id <= 0 || id != cellarCategory.CellarCategoryId)
+            if (id <= 0 || updateCellarCategoryDto == null)
                 return BadRequest();
 
             var userId = _userManager.GetUserId(User); // Get the currently authenticated user's ID
@@ -79,11 +105,7 @@ namespace MaCaveAVin.Controllers
             if (existingCategory == null)
                 return NotFound();
 
-            // Ensure the updated category belongs to the current user
-            if (existingCategory.UserId != userId)
-                return Forbid();
-
-            existingCategory.CategoryName = cellarCategory.CategoryName;
+            existingCategory.CategoryName = updateCellarCategoryDto.CategoryName;
 
             await _cellarCategoryRepository.UpdateCellarCategoryAsync(existingCategory);
 
@@ -94,7 +116,7 @@ namespace MaCaveAVin.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(200)]
-        [Produces(typeof(CellarCategory))]
+        [Produces(typeof(CellarCategoryDto))]
         public async Task<IActionResult> RemoveCellarCategory([FromRoute] int id)
         {
             if (id <= 0)
@@ -108,7 +130,13 @@ namespace MaCaveAVin.Controllers
 
             await _cellarCategoryRepository.RemoveCellarCategoryAsync(category);
 
-            return Ok(category);
+            var categoryDto = new CellarCategoryDto
+            {
+                CellarCategoryId = category.CellarCategoryId,
+                CategoryName = category.CategoryName
+            };
+
+            return Ok(categoryDto);
         }
     }
 }
