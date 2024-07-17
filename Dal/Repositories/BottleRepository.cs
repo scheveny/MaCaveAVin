@@ -29,7 +29,7 @@ namespace Dal.Repositories
         {
             return await context.Bottles.Where(b => b.CellarId == cellarId).ToListAsync();
         }
-        public async Task<List<Bottle>> GetBottlesByUserIdAsync(int userId)
+        public async Task<List<Bottle>> GetBottlesByUserIdAsync(string userId)
         {
             var userCellars = await context.Cellars.Where(c => c.User.Id == userId).Select(c => c.CellarId).ToListAsync();
             return await context.Bottles.Where(b => userCellars.Contains(b.CellarId)).ToListAsync();

@@ -34,17 +34,7 @@ namespace MaCaveAVin.Controllers
         #endregion
 
         #region -- GET --
-        /* GetBottles without DTO
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<Bottle>> GetBottles()
-        {
-            var bottles = context.Bottles.ToList();
-            return Ok(bottles);
-        }
-        */
-
-        // GetBottles with DTO
+        
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<BottleDto>>> GetBottles()
@@ -63,26 +53,6 @@ namespace MaCaveAVin.Controllers
 
             return Ok(bottles);
         }
-
-        /* GetBottle without DTO
-        [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<BottleDto>> GetBottle(int id)
-        {
-
-            if (id <= 0)
-                return BadRequest();
-
-            var bottle = context.Bottles.Find(id);
-
-            if (bottle == null)
-                return NotFound();
-
-            return Ok(bottle);
-        }
-        */
 
         //GetBottle with DTO
         [HttpGet("{id}")]
@@ -107,26 +77,6 @@ namespace MaCaveAVin.Controllers
 
             return Ok(bottleDto);
         }
-
-
-        /*GetBottlesFromCellar without DTO
-        [HttpGet("cellar/{cellarId}")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<Bottle>> GetBottlesFromCellar(int cellarId)
-        {
-            if (cellarId <= 0)
-                return BadRequest();
-
-            var bottles = context.Bottles.Where(b => b.CellarId == cellarId).ToList();
-
-            if (!bottles.Any())
-                return NotFound();
-
-            return Ok(bottles);
-        }
-        */
 
         // GetBottlesFromCellar with DTO
         [HttpGet("cellar/{cellarId}")]
@@ -153,39 +103,15 @@ namespace MaCaveAVin.Controllers
         }
 
 
-
-        /* GetAllUserBottles without DTO
-        // Nouvelle méthode pour récupérer toutes les bouteilles d'un utilisateur
-        [HttpGet("user/{userId}")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<Bottle>> GetAllUserBottles(int userId)
-        {
-            if (userId <= 0)
-                return BadRequest();
-
-            var userCellars = context.Cellars.Where(c => c.User.UserId == userId).Select(c => c.CellarId).ToList();
-            if (!userCellars.Any())
-                return NotFound();
-
-            var bottles = context.Bottles.Where(b => userCellars.Contains(b.CellarId)).ToList();
-            if (!bottles.Any())
-                return NotFound();
-
-            return Ok(bottles);
-        }
-        */
-
         // GetAllUserBottles without DTO
         [HttpGet("user/{userId}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<BottleDto>>> GetAllUserBottles(int userId)
+        public async Task<ActionResult<IEnumerable<BottleDto>>> GetAllUserBottles(string userId)
         {
-            if (userId <= 0)
-                return BadRequest();
+            //if (userId = null)
+            //    return BadRequest();
 
             var bottles = await bottleRepository.GetBottlesByUserIdAsync(userId);
 
@@ -203,32 +129,7 @@ namespace MaCaveAVin.Controllers
         #endregion
 
         #region -- POST --
-        /* AddBottle without DTO
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<Bottle> AddBottle([FromBody] Bottle bottle)
-        {
-            _peakService.CalculateIdealPeak(bottle);
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            // Find the first available position using the position service
-            var position = positionService.FindFirstAvailablePosition(bottle.CellarId);
-            if (position == null)
-                return BadRequest("No available position found.");
-
-            bottle.DrawerNb = position.Value.Item1;
-            bottle.StackInDrawerNb = position.Value.Item2;
-
-            context.Bottles.Add(bottle);
-            context.SaveChanges();
-
-            return CreatedAtAction(nameof(GetBottle), new { id = bottle.BottleId }, bottle);
-        }
-        */
-
+       
         // AddBottle with DTO
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -260,25 +161,6 @@ namespace MaCaveAVin.Controllers
         }
 
 
-        /* UpdateBottle without DTO
-        [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public IActionResult UpdateBottle(int id, [FromBody] Bottle bottle)
-        {
-            if (id <= 0 || id != bottle.BottleId)
-                return BadRequest();
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            context.Bottles.Update(bottle);
-            context.SaveChanges();
-
-            return NoContent();
-        }
-        */
-
         // UpdateBottle with DTO
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -298,28 +180,7 @@ namespace MaCaveAVin.Controllers
         #endregion
 
         #region -- DELETE --
-        /* RemoveBottle without DTO
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<Bottle> RemoveBottle(int id)
-        {
-            if (id <= 0)
-                return BadRequest();
-
-            var bottle = context.Bottles.Find(id);
-
-            if (bottle == null)
-                return NotFound();
-
-            context.Bottles.Remove(bottle);
-            context.SaveChanges();
-
-            return Ok(bottle);
-        }
-        */
-
+        
         // RemoveBottle with DTO
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
