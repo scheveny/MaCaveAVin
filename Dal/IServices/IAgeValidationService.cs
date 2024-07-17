@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Dal.IServices
+namespace Dal.Services
 {
     public interface IAgeValidationService
     {
