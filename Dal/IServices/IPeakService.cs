@@ -1,7 +1,7 @@
 ﻿using DomainModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Dal.Interfaces
+namespace Dal.Services
 {
     public interface IPeakService
     {

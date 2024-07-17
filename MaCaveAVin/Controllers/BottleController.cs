@@ -1,123 +1,171 @@
 ﻿using Dal;
 using DomainModel;
-using Dal.Interfaces;
+using MaCaveAVin.Filters;
+using Dal.IRepositories;
+using Dal.Services;
 using Microsoft.AspNetCore.Mvc;
+using DomainModel.DTOs.Bottle;
 using Microsoft.AspNetCore.Identity;
+
 
 namespace MaCaveAVin.Controllers
 {
-    [Route("[controller]")]
+    [Route("[controller]/[Action]")]
     [ApiController]
     public class BottleController : ControllerBase
     {
-        private readonly CellarContext _context;
-        private readonly IPositionService _positionService;
-        private readonly IPeakService _peakService;
-        private readonly UserManager<AppUser> _userManager;
+        private readonly CellarContext context;
+        private readonly IBottlePositionService positionService;
+        private readonly IPeakService peakService;
+        private readonly IBottleRepository bottleRepository;
+        private readonly ILogger logger;
+        private readonly UserManager<AppUser> userManager1;
 
-        public BottleController(CellarContext context, IPositionService positionService, IPeakService bottleService, UserManager<AppUser> userManager) // Dependency injection
+        #region -- CONSTRUCTEUR --
+        public BottleController(CellarContext context, ILogger<BottleController> logger, UserManager<AppUser> userManager, IBottleRepository bottleRepository, IBottlePositionService positionService, IPeakService bottleService) // Dependency injection
         {
-            _context = context;
-            _positionService = positionService;
-            _peakService = bottleService;
-            _userManager = userManager;
+            this.context = context;
+            this.positionService = positionService;
+            this.peakService = bottleService;
+            this.bottleRepository = bottleRepository;
+            this.logger = logger;
+            this.userManager1 = userManager;
         }
+        #endregion
 
+        #region -- GET --
+        
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<Bottle>> GetBottles()
+        public async Task<ActionResult<IEnumerable<BottleDto>>> GetBottles()
         {
-            var bottles = _context.Bottles.ToList();
+            List<BottleDto> bottles = new List<BottleDto>();
+
+            foreach (Bottle bottle in await bottleRepository.GetAllAsync())
+            {
+                bottles
+                    .Add(new BottleDto
+                    {
+                        BottleId = bottle.BottleId,
+                        BottleName = bottle.BottleName
+                    });
+            }
+
             return Ok(bottles);
         }
 
+        //GetBottle with DTO
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<Bottle> GetBottle(int id)
+        public async Task<ActionResult<BottleDto>> GetBottle(int id)
         {
             if (id <= 0)
                 return BadRequest();
 
-            var bottle = _context.Bottles.Find(id);
+            var bottle = await bottleRepository.GetByIdAsync(id);
 
             if (bottle == null)
                 return NotFound();
 
-            return Ok(bottle);
+            var bottleDto = new BottleDto
+            {
+                BottleId = bottle.BottleId,
+                BottleName = bottle.BottleName
+            };
+
+            return Ok(bottleDto);
         }
 
+        // GetBottlesFromCellar with DTO
         [HttpGet("cellar/{cellarId}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<Bottle>> GetBottlesFromCellar(int cellarId)
+        public async Task<ActionResult<IEnumerable<BottleDto>>> GetBottlesFromCellar(int cellarId)
         {
             if (cellarId <= 0)
                 return BadRequest();
 
-            var bottles = _context.Bottles.Where(b => b.CellarId == cellarId).ToList();
+            var bottles = await bottleRepository.GetBottlesByCellarIdAsync(cellarId);
 
             if (!bottles.Any())
                 return NotFound();
 
-            return Ok(bottles);
+            var bottleDtos = bottles.Select(b => new BottleDto
+            {
+                BottleId = b.BottleId,
+                BottleName = b.BottleName
+            }).ToList();
+
+            return Ok(bottleDtos);
         }
 
-        // Nouvelle méthode pour récupérer toutes les bouteilles d'un utilisateur
+
+        // GetAllUserBottles without DTO
         [HttpGet("user/{userId}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<Bottle>>> GetAllUserBottles(string userId)
+        public async Task<ActionResult<IEnumerable<BottleDto>>> GetAllUserBottles(string userId)
         {
-            if (string.IsNullOrEmpty(userId))
-                return BadRequest();
+            //if (userId = null)
+            //    return BadRequest();
 
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-                return NotFound();
+            var bottles = await bottleRepository.GetBottlesByUserIdAsync(userId);
 
-            var userCellars = _context.Cellars.Where(c => c.User.Id == userId).Select(c => c.CellarId).ToList();
-            if (!userCellars.Any())
-                return NotFound();
-
-            var bottles = _context.Bottles.Where(b => userCellars.Contains(b.CellarId)).ToList();
             if (!bottles.Any())
                 return NotFound();
 
-            return Ok(bottles);
-        }
+            var bottleDtos = bottles.Select(b => new BottleDto
+            {
+                BottleId = b.BottleId,
+                BottleName = b.BottleName
+            }).ToList();
 
+            return Ok(bottleDtos);
+        }
+        #endregion
+
+        #region -- POST --
+       
+        // AddBottle with DTO
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<Bottle> AddBottle([FromBody] Bottle bottle)
+        public async Task<ActionResult<CreateBottleDto>> AddBottle([FromBody] Bottle bottle)
         {
-            _peakService.CalculateIdealPeak(bottle);
+            peakService.CalculateIdealPeak(bottle);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             // Find the first available position using the position service
-            var position = _positionService.FindFirstAvailablePosition(bottle.CellarId);
+            var position = positionService.FindFirstAvailablePosition(bottle.CellarId);
             if (position == null)
                 return BadRequest("No available position found.");
 
             bottle.DrawerNb = position.Value.Item1;
             bottle.StackInDrawerNb = position.Value.Item2;
 
-            _context.Bottles.Add(bottle);
-            _context.SaveChanges();
+            var newBottle = await bottleRepository.PostAsync(bottle);
 
-            return CreatedAtAction(nameof(GetBottle), new { id = bottle.BottleId }, bottle);
+            var bottleDto = new BottleDto
+            {
+                //BottleId = newBottle.BottleId,
+                BottleName = newBottle.BottleName
+            };
+
+            return CreatedAtAction(nameof(GetBottle), new { id = newBottle.BottleId }, bottleDto);
         }
 
+
+        // UpdateBottle with DTO
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public IActionResult UpdateBottle(int id, [FromBody] Bottle bottle)
+        public async Task<IActionResult> UpdateBottle(int id, [FromBody] Bottle bottle)
         {
             if (id <= 0 || id != bottle.BottleId)
                 return BadRequest();
@@ -125,30 +173,46 @@ namespace MaCaveAVin.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            _context.Bottles.Update(bottle);
-            _context.SaveChanges();
+            var updatedBottle = await bottleRepository.UpdateAsync(bottle);
 
             return NoContent();
         }
+        #endregion
 
+        #region -- DELETE --
+        
+        // RemoveBottle with DTO
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<Bottle> RemoveBottle(int id)
+        public async Task<ActionResult<BottleDto>> RemoveBottle(int id)
         {
             if (id <= 0)
                 return BadRequest();
 
-            var bottle = _context.Bottles.Find(id);
+            var bottle = await bottleRepository.RemoveAsync(id);
 
             if (bottle == null)
                 return NotFound();
 
-            _context.Bottles.Remove(bottle);
-            _context.SaveChanges();
+            var bottleDto = new BottleDto
+            {
+                BottleId = bottle.BottleId,
+                BottleName = bottle.BottleName
+            };
 
-            return Ok(bottle);
+            return Ok(bottleDto);
         }
+        #endregion
+
+        #region -- EXCEPTION --
+        [CustomExceptionFilter]
+        [HttpGet("customerror")]
+        public IActionResult CustomError()
+        {
+            throw new NotImplementedException("Method not implemented");
+        }
+        #endregion
     }
 }

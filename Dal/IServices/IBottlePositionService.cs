@@ -1,6 +1,6 @@
-﻿namespace Dal.Interfaces
+﻿namespace Dal.Services
 {
-    public interface IPositionService
+    public interface IBottlePositionService
     {
         (int, int)? FindFirstAvailablePosition(int cellarId);
     }
