@@ -11,17 +11,14 @@ public class CellarCategoryRepository : ICellarCategoryRepository
         _context = context;
     }
 
-    public async Task<List<CellarCategory>> GetCellarCategoriesByUserIdAsync(string userId)
+    public async Task<List<CellarCategory>> GetAllCellarCategoriesAsync()
     {
-        return await _context.CellarCategories
-            .Where(cc => cc.UserId == userId)
-            .ToListAsync();
+        return await _context.CellarCategories.ToListAsync();
     }
 
-    public async Task<CellarCategory> GetCellarCategoryByIdAndUserIdAsync(int id, string userId)
+    public async Task<CellarCategory> GetCellarCategoryByIdAsync(int id)
     {
-        return await _context.CellarCategories
-            .FirstOrDefaultAsync(cc => cc.CellarCategoryId == id && cc.UserId == userId);
+        return await _context.CellarCategories.FindAsync(id);
     }
 
     public async Task AddCellarCategoryAsync(CellarCategory cellarCategory)
