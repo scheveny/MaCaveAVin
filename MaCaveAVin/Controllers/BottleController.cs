@@ -171,6 +171,8 @@ namespace MaCaveAVin.Controllers
                 BottleYear = createBottleDto.BottleYear,
                 WineColor = createBottleDto.WineColor,
                 Appellation = createBottleDto.Appellation,
+                DrawerNb = createBottleDto.DrawerNb,
+                StackInDrawerNb = createBottleDto.StackInDrawerNb,
                 PeakStart = createBottleDto.PeakStart,
                 PeakEnd = createBottleDto.PeakEnd,
                 CellarId = createBottleDto.CellarId

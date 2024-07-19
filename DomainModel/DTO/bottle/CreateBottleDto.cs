@@ -13,6 +13,8 @@ namespace DomainModel.DTOs.Bottle
         public int BottleYear { get; set; }
         public string WineColor { get; set; }
         public string Appellation { get; set; }
+        public int DrawerNb { get; set; }
+        public int StackInDrawerNb { get; set; }
         public int PeakStart { get; set; }
         public int PeakEnd { get; set; }
         public int CellarId { get; set; }
